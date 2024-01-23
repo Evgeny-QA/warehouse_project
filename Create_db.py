@@ -37,7 +37,8 @@ with sql.connect('Warehouses_db.db') as db:
     CREATE TABLE IF NOT EXISTS Goods_in_order(
         order_id INTEGER,
         good_id INTEGER,
-        amount  INTEGER
+        amount  INTEGER,
+        FOREIGN KEY (good_id) REFERENCES Goods(id)
     );
 
     CREATE TABLE IF NOT EXISTS Goods(
@@ -53,7 +54,6 @@ with sql.connect('Warehouses_db.db') as db:
         description TEXT,
         article_number INTEGER,
         image TEXT,
-        FOREIGN KEY (id) REFERENCES Goods_in_order(good_id),
         FOREIGN KEY (warehouse_id) REFERENCES Warehouses(id),
         FOREIGN KEY (category_id) REFERENCES Categories(id)
     );

@@ -1,9 +1,11 @@
 import sqlite3
 
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
-import qt_authorization_form
-from qt_warehouse_main import *
+
+from qt5 import qt_authorization_form
+from qt5.qt_warehouse_main import *
 
 
 class Login(QtWidgets.QMainWindow, qt_authorization_form.Ui_Authorize_form):

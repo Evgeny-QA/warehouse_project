@@ -30,9 +30,14 @@ with sql.connect('Warehouses_db.db') as db:
     );
 
     CREATE TABLE IF NOT EXISTS Categories(
-        warehouse_id INTEGER,
-        good_id INTEGER,
+        id INTEGER PRIMARY KEY,
         category_name TEXT
+    );
+    
+    CREATE TABLE IF NOT EXISTS Goods_in_order(
+        order_id INTEGER,
+        good_id INTEGER,
+        amount  INTEGER
     );
 
     CREATE TABLE IF NOT EXISTS Goods(
@@ -48,7 +53,9 @@ with sql.connect('Warehouses_db.db') as db:
         description TEXT,
         article_number INTEGER,
         image TEXT,
-        FOREIGN KEY (category_id) REFERENCES Categories(good_id)
+        FOREIGN KEY (id) REFERENCES Goods_in_order(good_id),
+        FOREIGN KEY (warehouse_id) REFERENCES Warehouses(id),
+        FOREIGN KEY (category_id) REFERENCES Categories(id)
     );
 
     CREATE TABLE IF NOT EXISTS Warehouses(
@@ -57,17 +64,9 @@ with sql.connect('Warehouses_db.db') as db:
         warehouse_name TEXT,
         warehouse_address TEXT,
         address_coordinates TEXT,
-        FOREIGN KEY (id) REFERENCES Goods(warehouse_id),
-        FOREIGN KEY (category_id) REFERENCES Warehouse_id(id)
+        FOREIGN KEY (category_id) REFERENCES Categories(id)
     );
 
-    CREATE TABLE IF NOT EXISTS Goods_in_order(
-        order_id INTEGER,
-        good_id INTEGER,
-        amount  INTEGER,
-        FOREIGN KEY (order_id) REFERENCES Orders(id),
-        FOREIGN KEY (good_id) REFERENCES Goods(id)
-    );
     """)
 
 print('ready')

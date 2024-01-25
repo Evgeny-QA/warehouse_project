@@ -1,11 +1,11 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 from functools import partial
 
-from qt5 import qt_make_order
-from qt5 import qt_add_good
-from qt5 import qt_edit_goods
-from qt5 import qt_orders_history
-from qt5 import qt_admin_panel
+import qt_make_order
+import qt_add_good
+import qt_edit_goods
+import qt_orders_history
+import qt_admin_panel
 
 
 class Ui_MainWindow(object):

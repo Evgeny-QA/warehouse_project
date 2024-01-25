@@ -2,7 +2,6 @@ import sqlite3
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
-
 from qt5 import qt_authorization_form
 from qt5.qt_warehouse_main import *
 

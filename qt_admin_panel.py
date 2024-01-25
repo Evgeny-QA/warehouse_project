@@ -53,7 +53,7 @@ class Ui_Admin_panel(object):
     def show_data(self):
         search_text = self.lineEdit_search.text()
         if search_text:
-            self.cursor.execute("SELECT * FROM Users WHERE login LIKE ?", [f"%{search_text}%"])
+            self.cursor.execute("SELECT * FROM Users WHERE LOWER(login) LIKE LOWER(?)", [f"%{search_text}%"])
         else:
             self.cursor.execute("SELECT * FROM Users")
         res = self.cursor.fetchall()

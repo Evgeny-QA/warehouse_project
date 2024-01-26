@@ -96,7 +96,7 @@ class Ui_MainWindow(object):
         self.main_window.show()
 
     def fill_table(self, info):
-        col_names = ['Название', 'Количество', 'Еденица измер.', 'Цена', 'Годен с', 'Годен до', 'Описание',
+        col_names = ['Название', 'Количество', 'Единица измер.', 'Цена', 'Годен с', 'Годен до', 'Описание',
                      'Артикль', 'Изображение']
         self.table_warehouse.setRowCount(0)
         self.table_warehouse.setColumnCount(len(info[0]))

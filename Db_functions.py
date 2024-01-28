@@ -23,8 +23,8 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-    '''qt_warehouse_main'''
-    def get_all_goods_from_warehouses(self, search_text):  # 115 строка qt_warehouse_main  62 qt_add_good
+    '''all files'''
+    def get_all_goods_from_warehouses(self, search_text):  # 115 строка qt_warehouse_main 62 qt_add_good 66 qt_edit_goods
         """Получение информации о всех товарах на всех складах
         :return: возвращает все товары на всех складах (склад, категория, название, количество, ед. изм.,
                  цена, дата изготовления, годен до, описание, артикул, путь к фото)"""
@@ -49,6 +49,7 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
+    '''qt_warehouse_main'''
     def get_goods_from_warehouse(self, warehouse_name, search_text):  # 140 строка qt_warehouse_main
         """Получение информации о товарах на определенном складе
         :param warehouse_name: название склада
@@ -109,7 +110,7 @@ class DataBase:
         """Добавление нового товара на склад
         :param good_info: [название склада (str), категория (str), название товара (str),
                            количество (int), ед. изм. (str), цена (int), дата изготовления (str),
-                           годен до (str), описание (str), артикул (int), путь к фото (str)]
+                           годен до (str), описание (str), путь к фото (str)]
         :return: True - товар добавлен"""
         try:
             with self.db:
@@ -134,11 +135,65 @@ class DataBase:
                 good_info[0], good_info[1] = good_info[1][0], good_info[0][0]  # из кортежа в число
 
                 cursor.execute('''INSERT INTO Goods(warehouse_id, category_id, good_name, amount, measure_unit,
-                                                    price, time_start, time_to_end, description, article_number, image)
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', good_info)
+                                                    price, time_start, time_to_end, description, image)
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', good_info)
                 return cursor.rowcount > 0
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False
 
+    '''qt_edit_goods'''
+    def delete_good(self, article_id):  # 124 qt_edit_goods
+        """Удаление товара со склада
+        :param article_id - номер товара"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''DELETE FROM Goods 
+                                  WHERE article_number = ?''', [article_id])
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+    '''qt_admin_panel'''
+    def add_new_user(self, login, password):  # 86
+        """Добавление пользователя
+        :param login - логин нового пользователя, password - пароль нового пользователя"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''INSERT INTO Users(login, password) 
+                                  VALUES(?,?)''', [login, password])
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+    def update_user_info(self, login, password, user_id):  # 86
+        """Обновление информации пользователя
+        :param login - логин пользователя, password - пароль пользователя"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''UPDATE Users 
+                                  SET login = ?, password = ? 
+                                  WHERE id = ?''', [login, password, user_id])
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+    def delete_user(self, user_id):  # 86
+        """Удаление пользователя
+        :param user_id - номер пользователя"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''DELETE FROM Users 
+                                  WHERE id = ?''', [user_id])
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+
+# DataBase().add_new_user(0,0)
+# DataBase().delete_good(222)
 # DataBase().add_new_good_into_db(["Запчасть плюс", "Проgdgdдукffaт;ы", "1", 1, "1", 1, "1", "1", "1", 1, "1"])

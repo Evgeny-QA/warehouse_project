@@ -38,11 +38,11 @@ with sql.connect('Warehouses_db.db') as db:
         order_id INTEGER,
         good_id INTEGER,
         amount  INTEGER,
-        FOREIGN KEY (good_id) REFERENCES Goods(id)
+        FOREIGN KEY (good_id) REFERENCES Goods(article_number),
+        FOREIGN KEY (order_id) REFERENCES Orders(id)
     );
 
     CREATE TABLE IF NOT EXISTS Goods(
-        id INTEGER PRIMARY KEY,
         warehouse_id INTEGER,
         category_id INTEGER,
         good_name TEXT,
@@ -52,7 +52,7 @@ with sql.connect('Warehouses_db.db') as db:
         time_start TEXT,
         time_to_end TEXT,
         description TEXT,
-        article_number INTEGER,
+        article_number INTEGER PRIMARY KEY UNIQUE,
         image TEXT,
         FOREIGN KEY (warehouse_id) REFERENCES Warehouses(id),
         FOREIGN KEY (category_id) REFERENCES Categories(id)

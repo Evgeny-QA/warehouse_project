@@ -6,6 +6,7 @@ class DataBase:
         self.db_file = 'Warehouses_db.db'
         self.db = sql.connect(self.db_file)
 
+    '''log_in'''
     def log_in(self, login):  # 27 log_in
         """Вход в приложение базы пользователем
         :param login: логин
@@ -22,21 +23,8 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-    def get_warehouses_names(self):
-        """Получение всех названий складов
-        :return: лист названий складов, пример: ['Запчасть плюс', 'Готовое и спелое']"""
-        try:
-            with self.db:
-                cursor = self.db.cursor()
-                cursor.execute('''SELECT warehouse_name
-                                  FROM Warehouses''')
-                names = cursor.fetchall()
-                return [i[0] for i in names]
-        except sql.Error as error:
-            print(f"Произошла ошибка: {error}")
-            return False
-
-    def get_all_goods_from_warehouses(self, search_text):  # 115 строка qt_warehouse_main
+    '''qt_warehouse_main'''
+    def get_all_goods_from_warehouses(self, search_text):  # 115 строка qt_warehouse_main  62 qt_add_good
         """Получение информации о всех товарах на всех складах
         :return: возвращает все товары на всех складах (склад, категория, название, количество, ед. изм.,
                  цена, дата изготовления, годен до, описание, артикул, путь к фото)"""
@@ -88,7 +76,36 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-    def add_new_good_into_db(self, good_info):
+    def get_warehouses_names(self):
+        """Получение всех названий складов
+        :return: лист названий складов, пример: ['Запчасть плюс', 'Готовое и спелое']"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''SELECT warehouse_name
+                                  FROM Warehouses''')
+                names = cursor.fetchall()
+                return [i[0] for i in names]
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+    '''qt_add_good'''
+    def get_all_categories(self):  # 96 qt_add_good
+        """Получение всех доступных категорий товаров
+        :return: Возвращает все категории товаров"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''SELECT category_name 
+                                  FROM Categories''')
+                categories = cursor.fetchone()
+                return categories
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+    def add_new_good_into_db(self, good_info):  # 178 qt_add_good
         """Добавление нового товара на склад
         :param good_info: [название склада (str), категория (str), название товара (str),
                            количество (int), ед. изм. (str), цена (int), дата изготовления (str),
@@ -124,5 +141,4 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-
-DataBase().add_new_good_into_db(["Запчасть плюс", "Проgdgdдукffaт;ы", "1", 1, "1", 1, "1", "1", "1", 1, "1"])
+# DataBase().add_new_good_into_db(["Запчасть плюс", "Проgdgdдукffaт;ы", "1", 1, "1", 1, "1", "1", "1", 1, "1"])

@@ -1,5 +1,5 @@
 import sqlite3 as sql
-
+from datetime import date
 
 class DataBase:
     def __init__(self):
@@ -203,18 +203,11 @@ class DataBase:
                 cursor.execute('''DELETE FROM Goods
                                   WHERE time_to_end IS NOT NULL 
                                   AND Cast ((JulianDay('now') - JulianDay(time_to_end)) as Integer) >= 0''')
-                print("Done")
+                print("Delete done:" + str(date.today()))
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False
 
-# SELECT strftime('%d-%m-%Y', '2021-12-01')
-#SELECT JulianDay(strftime('%Y-%m-%d', '2023-01-01'))
-
-    # SELECT time_to_end, Cast ((JulianDay('now') - JulianDay(time_to_end)) As Integer) as difference
-    # FROM Goods
-    # WHERE time_to_end IS NOT NULL
-    # -- JulianDay("2024-01-30")
 
     '''ДЛЯ ОЛЕГА СОЗДАНИЕ word/excel'''
     # '''cart'''

@@ -32,8 +32,8 @@
   <widget class="QPushButton" name="btn_add_to_cart">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>352</y>
+     <x>10</x>
+     <y>350</y>
      <width>190</width>
      <height>30</height>
     </rect>

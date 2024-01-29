@@ -124,10 +124,15 @@ class Ui_Admin_panel(object):
             return
 
         for field in selected_fields:
+            print(field)
             row = field.row()
+            print(row)
             column = field.column()
+            print(column)
             new_value = field.text()
+            print(new_value)
             user_id = self.tableWidget.item(row, 0).text()
+            print(user_id)
 
             self.cursor.execute(
                 f"UPDATE Users SET {self.tableWidget.horizontalHeaderItem(column).text()} = ? WHERE id = ?",

@@ -1,7 +1,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sqlite3
 
 
 class Ui_Orders_History(object):
+    def __init__(self, user):
+        self.db = sqlite3.connect('Warehouses_db.db')
+        self.cursor = self.db.cursor()
+        self.current_user = user
+
     def setupUi(self, Orders_History):
         Orders_History.setObjectName("Orders_History")
         Orders_History.resize(600, 320)

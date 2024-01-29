@@ -14,10 +14,11 @@ from Db_functions import DataBase as db
 
 
 class Ui_MainWindow(object):
-    def __init__(self):
+    def __init__(self, user):
         self.db = sqlite3.connect('Warehouses_db.db')
         self.cursor = self.db.cursor()
         self.selected_warehouse = None
+        self.current_user = user
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -102,10 +103,10 @@ class Ui_MainWindow(object):
         self.action_3.setText(_translate("MainWindow", "Редактировать товары"))
         self.action_4.setText(_translate("MainWindow", "История заказов"))
         self.action_5.setText(_translate("MainWindow", "Панель администратора"))
-        self.action.triggered.connect(partial(self.open_window, qt_make_order.Ui_make_order()))
-        self.action_2.triggered.connect(partial(self.open_window, qt_add_good.Ui_add_good()))
-        self.action_4.triggered.connect(partial(self.open_window, qt_orders_history.Ui_Orders_History()))
-        self.action_5.triggered.connect(partial(self.open_window, qt_admin_panel.Ui_Admin_panel()))
+        self.action.triggered.connect(partial(self.open_window, qt_make_order.Ui_make_order(self.current_user)))
+        self.action_2.triggered.connect(partial(self.open_window, qt_add_good.Ui_add_good(self.current_user)))
+        self.action_4.triggered.connect(partial(self.open_window, qt_orders_history.Ui_Orders_History(self.current_user)))
+        self.action_5.triggered.connect(partial(self.open_window, qt_admin_panel.Ui_Admin_panel(self.current_user)))
         self.lineEdit_search.returnPressed.connect(partial(self.show_data_main))
         self.btn_search.clicked.connect(partial(self.show_selected_warehouse_goods))
         self.btn_cancel_changes.clicked.connect(partial(self.show_selected_warehouse_goods))
@@ -222,7 +223,7 @@ class Ui_MainWindow(object):
             self.cursor.execute(f"UPDATE Goods SET {column_name} = ? WHERE article_number = ?", [new_value, article])
 
         self.db.commit()
-        self.show_data_main()
+        self.show_selected_warehouse_goods()
 
 
 

@@ -6,10 +6,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Admin_panel(object):
-    def __init__(self):
+    def __init__(self, user):
         self.table = 'Users'
         self.db = sqlite3.connect('Warehouses_db.db')
         self.cursor = self.db.cursor()
+        self.current_user = user
 
     def setupUi(self, Admin_panel):
         Admin_panel.setObjectName("Admin_panel")

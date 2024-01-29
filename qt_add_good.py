@@ -12,12 +12,13 @@ from Db_functions import DataBase as db
 
 
 class Ui_add_good(object):
-    def __init__(self):
+    def __init__(self, user):
         self.db = sqlite3.connect('Warehouses_db.db')
         self.cursor = self.db.cursor()
         self.image_path = None
         self.downloaded_image_path = None
         self.data_to_upload = []
+        self.current_user = user
 
     def setupUi(self, add_good):
         add_good.setObjectName("add_good")

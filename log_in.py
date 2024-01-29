@@ -1,6 +1,3 @@
-import sqlite3
-
-from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 
 import qt_authorization_form
@@ -13,6 +10,7 @@ class Login(QtWidgets.QMainWindow, qt_authorization_form.Ui_Authorize_form):
         self.setupUi(self)
         self.db = sqlite3.connect('Warehouses_db.db')
         self.cursor = self.db.cursor()
+        self.current_user = None
 
         self.btn_enter.clicked.connect(self.login)
 
@@ -24,20 +22,21 @@ class Login(QtWidgets.QMainWindow, qt_authorization_form.Ui_Authorize_form):
             return
 
         try:
-            self.cursor.execute("SELECT password FROM users WHERE login=?", [user_login])
+            self.cursor.execute("SELECT id, password FROM users WHERE login=?", [user_login])
             check_pass = self.cursor.fetchone()
 
-            if check_pass is not None and check_pass[0] == user_password:
+            if check_pass is not None and check_pass[1] == user_password:
                 self.hide()
-                self.open_main_window()
+                self.open_main_window(check_pass[0])
             else:
                 QMessageBox.critical(self, "Ошибка авторизации", "Неверный логин или пароль")
         except (sqlite3.Error, TypeError) as e:
             QMessageBox.critical(self, "Ошибка", f"Возникла ошибка: {str(e)}")
 
-    def open_main_window(self):
+    def open_main_window(self, user):
         self.main_window = QtWidgets.QMainWindow()
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_MainWindow(user)
+        self.current_user = user
         self.ui.setupUi(self.main_window)
         self.main_window.show()
 

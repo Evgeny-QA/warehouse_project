@@ -19,7 +19,7 @@
      <x>20</x>
      <y>30</y>
      <width>451</width>
-     <height>281</height>
+     <height>251</height>
     </rect>
    </property>
   </widget>
@@ -64,6 +64,32 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="label_all_rpice">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>290</y>
+     <width>70</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Общая сумма:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>290</y>
+     <width>100</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="frame">
+    <bool>false</bool>
+   </property>
   </widget>
  </widget>
  <resources/>

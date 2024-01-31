@@ -208,6 +208,44 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
+        '''qt_orders_history'''
+
+    def get_completed_orders(self, search_text=""):
+        """Получение всех заказов
+        :return: Возвращает список заказов"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''SELECT O.id, login, company_name, delivery_address, file_word, file_excel
+                                  FROM Users U JOIN Orders O ON U.id = O.user_id JOIN Companies C ON 
+                                       O.company_id = C.id''' + search_text)
+                info = cursor.fetchall()
+                return info
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+        #
+        #         if search_text:
+        #             cursor.execute('''SELECT category_name, good_name, amount, measure_unit, price, time_start,
+        #                                      time_to_end, description, article_number, image
+        #                               FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id
+        #                                            JOIN Categories C ON G.category_id = C.id
+        #                               WHERE warehouse_name = ? AND LOWER(good_name) LIKE LOWER(?)''',
+        #                            [warehouse_name, f"%{search_text}%"])
+        #         else:
+        #             cursor.execute('''SELECT category_name, good_name, amount, measure_unit, price, time_start,
+        #                                      time_to_end, description, article_number, image
+        #                               FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id
+        #                                            JOIN Categories C ON G.category_id = C.id
+        #                               WHERE warehouse_name = ?''', [warehouse_name])
+        #         info = cursor.fetchall()
+        #         return info
+        # except sql.Error as error:
+        #     print(f"Произошла ошибка: {error}")
+        #     return False
+# DataBase().get_completed_orders()
+
 
     '''ДЛЯ ОЛЕГА СОЗДАНИЕ word/excel'''
     # '''cart'''

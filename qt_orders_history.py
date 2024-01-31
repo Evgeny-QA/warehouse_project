@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-import sqlite3
 from Db_functions import DataBase
 from PyQt5.QtWidgets import QPushButton
+from functools import partial
 from os import startfile
 
 
@@ -27,19 +27,21 @@ class Ui_Orders_History(object):
         self.retranslateUi(Orders_History)
         QtCore.QMetaObject.connectSlotsByName(Orders_History)
 
+        table_collums = ["№ Заказа", "Составитель ТТН", "Компания (заказчик)", "Адрес доставки", "Word", "Excel"]
+        self.tableWidget_table_history.setColumnCount(len(table_collums))
+        self.tableWidget_table_history.setHorizontalHeaderLabels(table_collums)
+        self.fill_table()
+
     def retranslateUi(self, Orders_History):
         _translate = QtCore.QCoreApplication.translate
         Orders_History.setWindowTitle(_translate("Orders_History", "История заказов"))
         self.lineEdit.setPlaceholderText(_translate("Orders_History", "Поиск..."))
+        # self.lineEdit.returnPressed.connect(self.fill_table())
 
-        table_collums = ["№ Заказа", "Составитель ТТН", "Компания (заказчик)", "Адрес доставки", "Word", "Excel"]
-
-        self.tableWidget_table_history.setColumnCount(len(table_collums))
-        self.tableWidget_table_history.setHorizontalHeaderLabels(table_collums)
-        info = DataBase().get_completed_orders()
+    def fill_table(self):
+        search = self.lineEdit.text()
+        info = DataBase().get_completed_orders(search)
         self.tableWidget_table_history.setRowCount(len(info))
-        # self.tableWidget.setItem(r, c, QtWidgets.QTableWidgetItem(str(item)))
-
         for row, str_info in enumerate(info):
             len_str = len(str_info)
             for coll, info_insert in enumerate(str_info):
@@ -55,5 +57,3 @@ class Ui_Orders_History(object):
                     self.tableWidget_table_history.setCellWidget(row, coll, button)
                 else:
                     self.tableWidget_table_history.setItem(row, coll, QtWidgets.QTableWidgetItem(str(info_insert)))
-
-

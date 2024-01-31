@@ -1,5 +1,5 @@
 import sqlite3 as sql
-
+from datetime import date
 
 class DataBase:
     def __init__(self):
@@ -193,7 +193,36 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
+    '''schedule_delete_goods'''
+    def delete_after_time_good_end(self):
+        """Удаление товара со склада после окончания срока годности
+        :return: Возвращает пароль, если пароль не верный"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''DELETE FROM Goods
+                                  WHERE time_to_end IS NOT NULL 
+                                  AND Cast ((JulianDay('now') - JulianDay(time_to_end)) as Integer) >= 0''')
+                print("Delete done:" + str(date.today()))
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+
+    '''ДЛЯ ОЛЕГА СОЗДАНИЕ word/excel'''
+    # '''cart'''
+    # def create_order_documets(self, ):
+    #     """Удаление пользователя
+    #     :param """
+    #     try:
+    #         with self.db:
+    #             cursor = self.db.cursor()
+    #             cursor.execute('''DELETE FROM Users
+    #                                       WHERE id = ?''', [user_id])
+    #     except sql.Error as error:
+    #         print(f"Произошла ошибка: {error}")
+    #         return False
 
 # DataBase().add_new_user(0,0)
 # DataBase().delete_good(222)
-# DataBase().add_new_good_into_db(["Запчасть плюс", "Проgdgdдукffaт;ы", "1", 1, "1", 1, "1", "1", "1", 1, "1"])
+# DataBase().add_new_good_into_db(["Запчасть плюс", "Продуктыыыы", "1", 1, "1", 1, "1", "1", "1", "1"])

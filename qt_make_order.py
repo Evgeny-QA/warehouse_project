@@ -63,8 +63,7 @@ class Ui_make_order(object):
         self.lineEdit_search_order.returnPressed.connect(partial(self.show_data))
         self.btn_add_to_cart.clicked.connect(partial(self.add_to_cart))
         QtCore.QMetaObject.connectSlotsByName(make_order)
-        self.btn_cart.clicked.connect(partial(self.open_window,
-                                              qt_cart.Ui_Cart(self.goods_in_cart, self, self.current_user)))
+        self.btn_cart.clicked.connect(partial(self.open_window, qt_cart.Ui_Cart(self, self.current_user)))
 
     def show_data(self, selected_warehouse_data=None):
         if selected_warehouse_data is None:

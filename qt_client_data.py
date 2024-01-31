@@ -11,7 +11,7 @@ class Ui_Client_data(object):
         self.current_user = user
         self.goods_in_order = goods_in_cart
         self.price = all_price
-        self.data = None
+        self.client = None
         self.address = None
 
     def setupUi(self, Client_data):
@@ -61,17 +61,23 @@ class Ui_Client_data(object):
         self.lineEdit_address.setPlaceholderText(_translate("Client_data", "Введите адрес доставки (Город, улица, дом, почтовый индекс)"))
         self.btn_take_data.setText(_translate("Client_data_and_address", "Принять"))
         self.btn_cancel.setText(_translate("Client_data_and_address", "Отмена"))
-        self.btn_take_data.clicked.connect(partial(self.get_data))
+        self.btn_take_data.clicked.connect(self.get_data)
+        self.btn_cancel.clicked.connect(self.close_window)
 
     def get_data(self):
-        if len(self.lineEdit_client.text()) > 0:
-            self.data = self.lineEdit_client.text()
-        else:
-            return QtWidgets.QMessageBox.information(self.layoutWidget, 'Ошибка', 'Введите данные клиента!')
-        if len(self.lineEdit_address.text()) > 0:
-            self.address = self.lineEdit_address.text()
-        else:
-            return QtWidgets.QMessageBox.information(self.layoutWidget, 'Ошибка', 'Введите адрес!')
+        client_data = self.lineEdit_client.text().strip()
+        address_data = self.lineEdit_address.text().strip()
+
+        if not client_data:
+            QtWidgets.QMessageBox.information(self.layoutWidget, 'Ошибка', 'Введите данные клиента!')
+            return
+
+        if not address_data:
+            QtWidgets.QMessageBox.information(self.layoutWidget, 'Ошибка', 'Введите адрес!')
+            return
+
+        self.client = client_data
+        self.address = address_data
 
     def get_companies_list(self):
         self.comboBox_client.clear()
@@ -91,20 +97,28 @@ class Ui_Client_data(object):
         if index_client == 0:
             self.lineEdit_client.clear()
             self.lineEdit_client.setEnabled(True)
+            self.client = self.lineEdit_client.text()
         else:
-            selected_company = self.comboBox_client.currentText()
-            self.lineEdit_client.setText(selected_company)
+            self.client = self.comboBox_client.currentText()
+            self.lineEdit_client.setText(self.client)
             self.lineEdit_client.setEnabled(False)
 
     def combo_box_address(self, index_address):
         if index_address == 0:
             self.lineEdit_address.clear()
             self.lineEdit_address.setEnabled(True)
+            self.address = self.lineEdit_address.text()
         else:
-            selected_address = self.comboBox_address.currentText()
-            self.lineEdit_address.setText(selected_address)
+            self.address = self.comboBox_address.currentText()
+            self.lineEdit_address.setText(self.address)
             self.lineEdit_address.setEnabled(False)
 
-    def close_window(self, event):
+    def close_window(self, event=None):
+        self.client = None
+        self.address = None
         self.cart_class.current_window.show()
-        event.accept()
+        if not event:
+            QtWidgets.QApplication.activeWindow().close()
+        else:
+            self.cart_class.current_window.show()
+            event.accept()

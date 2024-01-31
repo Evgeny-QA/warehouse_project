@@ -10,10 +10,9 @@ import qt_client_data
 
 
 class Ui_Cart(object):
-    def __init__(self, goods_in_cart, make_order_class, user):
+    def __init__(self, make_order_class, user):
         self.db = sqlite3.connect('Warehouses_db.db')
         self.cursor = self.db.cursor()
-        self.goods_in_cart = goods_in_cart
         self.all_price = []
         self.make_order_class = make_order_class
         self.current_user = user
@@ -52,7 +51,7 @@ class Ui_Cart(object):
         self.lineEdit_sum.setObjectName("lineEdit")
         self.lineEdit_sum.setReadOnly(True)
 
-        self.show_cart(self.goods_in_cart)
+        self.show_cart(self.make_order_class.goods_in_cart)
         Cart.closeEvent = self.close_window
 
         self.retranslateUi(Cart)
@@ -67,8 +66,8 @@ class Ui_Cart(object):
         self.label_all_rpice.setText(_translate("Cart", "Общая сумма:"))
         self.btn_cart_clear.clicked.connect(partial(self.clear_cart))
         self.btn_cart_delete.clicked.connect(partial(self.delete_from_cart))
-        self.btn_cart_get_order.clicked.connect(partial(self.open_window,
-                        qt_client_data.Ui_Client_data(self, self.current_user, self.goods_in_cart, self.all_price)))
+        self.btn_cart_get_order.clicked.connect(partial(self.open_window, qt_client_data.Ui_Client_data(
+            self, self.make_order_class.current_user, self.make_order_class.goods_in_cart, self.all_price)))
 
     def show_cart(self, cart):
         data = []
@@ -98,13 +97,12 @@ class Ui_Cart(object):
                 self.table_widget_cart.setItem(row_number, column, QtWidgets.QTableWidgetItem(str(data)))
 
     def clear_cart(self):
-        for good in self.goods_in_cart:
+        for good in self.make_order_class.goods_in_cart:
             self.cursor.execute(f"SELECT amount FROM Goods WHERE article_number = ?", [int(good[0])])
             current_quantity = int(self.cursor.fetchone()[0])
             self.cursor.execute(f"UPDATE Goods SET amount = ? WHERE article_number = ?",
                                 [current_quantity + int(good[1]), int(good[0])])
         self.db.commit()
-        self.goods_in_cart = []
         self.lineEdit_sum.clear()
         self.table_widget_cart.clear()
         self.make_order_class.flag = True
@@ -140,8 +138,8 @@ class Ui_Cart(object):
                                     [selected_id[1], selected_id[0]])
         self.db.commit()
 
-        self.goods_in_cart = self.goods_in_cart = [i for i in self.goods_in_cart if i not in selected_ids]
-        if len(self.goods_in_cart) == 0:
+        goods_in_cart = [i for i in self.make_order_class.goods_in_cart if i not in selected_ids]
+        if len(goods_in_cart) == 0:
             self.table_widget_cart.clear()
             self.lineEdit_sum.clear()
             self.all_price = []
@@ -150,14 +148,14 @@ class Ui_Cart(object):
             self.make_order_class.cart_count = 0
             self.make_order_class.show_data()
         else:
-            self.show_cart(self.goods_in_cart)
+            self.show_cart(self.make_order_class.goods_in_cart)
 
     def open_window(self, window):
         self.current_window = QtWidgets.QApplication.activeWindow()
         self.main_window = QtWidgets.QMainWindow()
         self.ui = window
         self.ui.setupUi(self.main_window)
-        self.current_window.hide()
+        self.current_window.close()
         self.main_window.show()
 
 

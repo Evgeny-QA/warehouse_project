@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from Db_functions import DataBase
 from PyQt5.QtWidgets import QPushButton
-from functools import partial
 from os import startfile
 
 
@@ -36,11 +35,15 @@ class Ui_Orders_History(object):
         _translate = QtCore.QCoreApplication.translate
         Orders_History.setWindowTitle(_translate("Orders_History", "История заказов"))
         self.lineEdit.setPlaceholderText(_translate("Orders_History", "Поиск..."))
-        self.lineEdit.returnPressed.connect(self.fill_table())
+        self.lineEdit.returnPressed.connect(self.get_search_text)
 
-    def fill_table(self):
-        search = self.lineEdit.text()
-        info = DataBase().get_completed_orders(search)
+    def get_search_text(self):
+        search_text = self.lineEdit.text()
+        self.fill_table(search_text)
+
+    def fill_table(self, search_text=None):
+        print([search_text])
+        info = DataBase().get_completed_orders(search_text)
         self.tableWidget_table_history.setRowCount(len(info))
         for row, str_info in enumerate(info):
             len_str = len(str_info)

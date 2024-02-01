@@ -20,6 +20,7 @@ class Ui_MainWindow(object):
         self.selected_warehouse = None
         self.current_user = user
         self.info_for_search = None
+        self.flag = False
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -87,6 +88,7 @@ class Ui_MainWindow(object):
         self.get_warehouses_list()
         self.get_info_from_db()
         self.show_data_main()
+        self.table_warehouse.horizontalHeader().sectionClicked.connect(self.sort_table)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -114,6 +116,14 @@ class Ui_MainWindow(object):
         self.btn_cancel_changes.clicked.connect(partial(self.show_selected_warehouse_goods))
         self.btn_delete.clicked.connect(partial(self.delete_good))
         self.btn_take_changes.clicked.connect(partial(self.change_data))
+
+    def sort_table(self, column):
+        if not self.flag:
+            self.table_warehouse.sortItems(column, QtCore.Qt.AscendingOrder)
+            self.flag = True
+        else:
+            self.table_warehouse.sortItems(column, QtCore.Qt.DescendingOrder)
+            self.flag = False
 
     def get_info_from_db(self):
         self.cursor.execute(f"""SELECT good_name, amount, measure_unit, price, time_start, time_to_end, description,

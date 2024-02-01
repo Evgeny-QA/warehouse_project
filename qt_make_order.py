@@ -99,7 +99,6 @@ class Ui_make_order(object):
                     self.table_make_order.setCellWidget(row_number, column, button)
                 else:
                     item = QtWidgets.QTableWidgetItem(str(data))
-                    item.setFlags(QtCore.Qt.ItemIsEnabled)
                     self.table_make_order.setItem(row_number, column, item)
 
     def open_image(self, image_path):

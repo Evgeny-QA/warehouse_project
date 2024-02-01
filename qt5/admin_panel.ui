@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>660</width>
-    <height>350</height>
+    <width>375</width>
+    <height>335</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <rect>
      <x>20</x>
      <y>50</y>
-     <width>620</width>
+     <width>335</width>
      <height>190</height>
     </rect>
    </property>
@@ -29,10 +29,10 @@
   <widget class="QLineEdit" name="lineEdit_search">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>180</x>
      <y>10</y>
-     <width>170</width>
-     <height>30</height>
+     <width>171</width>
+     <height>25</height>
     </rect>
    </property>
    <property name="frame">
@@ -45,10 +45,10 @@
   <widget class="QLineEdit" name="lineEdit_new_admin_login">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>19</x>
      <y>260</y>
-     <width>150</width>
-     <height>18</height>
+     <width>151</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="frame">
@@ -58,26 +58,48 @@
     <string>Введите Login</string>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QLineEdit" name="lineEdit_new_admin_password">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>260</y>
+     <width>150</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="frame">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Введите Пароль</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_edit">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>90</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
+   <property name="text">
+    <string>Редактировать</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>290</y>
-     <width>621</width>
-     <height>41</height>
+     <width>331</width>
+     <height>31</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QPushButton" name="btn_edit">
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>Редактировать</string>
-      </property>
-     </widget>
-    </item>
     <item>
      <widget class="QPushButton" name="btn_delete">
       <property name="cursor">
@@ -99,22 +121,6 @@
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QLineEdit" name="lineEdit_new_admin_password">
-   <property name="geometry">
-    <rect>
-     <x>200</x>
-     <y>260</y>
-     <width>150</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="frame">
-    <bool>false</bool>
-   </property>
-   <property name="placeholderText">
-    <string>Введите Пароль</string>
-   </property>
   </widget>
  </widget>
  <resources/>

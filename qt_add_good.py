@@ -68,7 +68,6 @@ class Ui_add_good(object):
             QtWidgets.QMessageBox.information(self.tableWidget_new_data, 'Поиск товаров', 'Данные не найдены!')
         else:
             self.fill_table(res)
-    print()
 
     def fill_table(self, info=None):
         if info is None:
@@ -77,8 +76,9 @@ class Ui_add_good(object):
             col_names = ['Склад', 'Категория', 'Название', 'Количество', 'Единица измер.', 'Цена', 'Годен с',
                          'Годен до', 'Описание', 'Изображение']
             self.tableWidget_new_data.setRowCount(1)
-            self.tableWidget_new_data.setColumnCount(len(res[0])-2)
+            self.tableWidget_new_data.setColumnCount(len(res[0])-1)
             self.tableWidget_new_data.setHorizontalHeaderLabels(col_names)
+            print(len(col_names))
             for column in range(len(col_names)):
                 item = QtWidgets.QTableWidgetItem()
                 self.tableWidget_new_data.setItem(0, column, item)

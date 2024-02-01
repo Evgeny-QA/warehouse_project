@@ -36,7 +36,7 @@ class Ui_Orders_History(object):
         _translate = QtCore.QCoreApplication.translate
         Orders_History.setWindowTitle(_translate("Orders_History", "История заказов"))
         self.lineEdit.setPlaceholderText(_translate("Orders_History", "Поиск..."))
-        # self.lineEdit.returnPressed.connect(self.fill_table())
+        self.lineEdit.returnPressed.connect(self.fill_table())
 
     def fill_table(self):
         search = self.lineEdit.text()

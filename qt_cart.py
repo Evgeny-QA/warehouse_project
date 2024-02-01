@@ -16,15 +16,15 @@ class Ui_Cart(object):
 
     def setupUi(self, Cart):
         Cart.setObjectName("Cart")
-        Cart.resize(490, 380)
+        Cart.resize(460, 380)
         self.table_widget_cart = QtWidgets.QTableWidget(Cart)
-        self.table_widget_cart.setGeometry(QtCore.QRect(20, 30, 450, 250))
+        self.table_widget_cart.setGeometry(QtCore.QRect(20, 30, 417, 250))
         self.table_widget_cart.setObjectName("tableView")
         self.layoutWidget = QtWidgets.QWidget(Cart)
-        self.layoutWidget.setGeometry(QtCore.QRect(20, 330, 450, 25))
+        self.layoutWidget.setGeometry(QtCore.QRect(20, 330, 400, 25))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setContentsMargins(17, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.btn_cart_get_order = QtWidgets.QPushButton(self.layoutWidget)
         self.btn_cart_get_order.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
@@ -39,10 +39,10 @@ class Ui_Cart(object):
         self.btn_cart_clear.setObjectName("btn_cart_clear")
         self.horizontalLayout.addWidget(self.btn_cart_clear)
         self.label_all_rpice = QtWidgets.QLabel(Cart)
-        self.label_all_rpice.setGeometry(QtCore.QRect(290, 290, 70, 20))
+        self.label_all_rpice.setGeometry(QtCore.QRect(256, 290, 70, 20))
         self.label_all_rpice.setObjectName("label_all_rpice")
         self.lineEdit_sum = QtWidgets.QLineEdit(Cart)
-        self.lineEdit_sum.setGeometry(QtCore.QRect(370, 290, 100, 20))
+        self.lineEdit_sum.setGeometry(QtCore.QRect(336, 290, 100, 20))
         self.lineEdit_sum.setFrame(False)
         self.lineEdit_sum.setObjectName("lineEdit")
         self.lineEdit_sum.setReadOnly(True)
@@ -153,6 +153,4 @@ class Ui_Cart(object):
         self.ui.setupUi(self.main_window)
         self.current_window.close()
         self.main_window.show()
-
-
 

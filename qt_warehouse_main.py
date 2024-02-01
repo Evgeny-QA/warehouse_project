@@ -181,8 +181,10 @@ class Ui_MainWindow(object):
                                 JOIN Warehouses ON Goods.warehouse_id = Warehouses.id
                                 WHERE Warehouses.Warehouse_name = ?""", [selected_warehouse])
             res = self.cursor.fetchall()
+            self.get_info_from_db()
             return self.show_data_main(res)
         else:
+            self.get_info_from_db()
             return self.show_data_main()
 
     def open_image(self, image_path):
@@ -214,7 +216,7 @@ class Ui_MainWindow(object):
                 for selected_id in selected_ids:
                     self.cursor.execute(f"DELETE FROM Goods WHERE article_number = ?", [selected_id])
             self.db.commit()
-            self.show_data_main()
+            self.show_selected_warehouse_goods()
 
         except Exception as e:
             traceback.print_exc()

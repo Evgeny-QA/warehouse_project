@@ -15,40 +15,40 @@ class Ui_Admin_panel(object):
     def setupUi(self, Admin_panel):
         Admin_panel.setObjectName("Admin_panel")
         Admin_panel.setWindowModality(QtCore.Qt.NonModal)
-        Admin_panel.resize(660, 340)
+        Admin_panel.resize(375, 335)
         self.tableWidget = QtWidgets.QTableWidget(Admin_panel)
-        self.tableWidget.setGeometry(QtCore.QRect(20, 50, 620, 190))
+        self.tableWidget.setGeometry(QtCore.QRect(20, 50, 335, 190))
         self.tableWidget.setObjectName("tableView_data")
         self.lineEdit_search = QtWidgets.QLineEdit(Admin_panel)
-        self.lineEdit_search.setGeometry(QtCore.QRect(470, 10, 170, 30))
+        self.lineEdit_search.setGeometry(QtCore.QRect(180, 10, 170, 25))
         self.lineEdit_search.setFrame(False)
         self.lineEdit_search.setObjectName("lineEdit_search")
         self.lineEdit_new_admin_login = QtWidgets.QLineEdit(Admin_panel)
-        self.lineEdit_new_admin_login.setGeometry(QtCore.QRect(20, 260, 150, 18))
+        self.lineEdit_new_admin_login.setGeometry(QtCore.QRect(20, 260, 150, 20))
         self.lineEdit_new_admin_login.setFrame(False)
         self.lineEdit_new_admin_login.setObjectName("lineEdit_new_admin_login")
-        self.layoutWidget = QtWidgets.QWidget(Admin_panel)
-        self.layoutWidget.setGeometry(QtCore.QRect(20, 290, 620, 40))
-        self.layoutWidget.setObjectName("layoutWidget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.btn_edit = QtWidgets.QPushButton(self.layoutWidget)
-        self.btn_edit.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.btn_edit.setObjectName("btn_edit")
-        self.horizontalLayout.addWidget(self.btn_edit)
-        self.btn_delete = QtWidgets.QPushButton(self.layoutWidget)
-        self.btn_delete.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.btn_delete.setObjectName("btn_delete")
-        self.horizontalLayout.addWidget(self.btn_delete)
-        self.btn_add = QtWidgets.QPushButton(self.layoutWidget)
-        self.btn_add.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.btn_add.setObjectName("btn_add")
-        self.horizontalLayout.addWidget(self.btn_add)
         self.lineEdit_new_admin_password = QtWidgets.QLineEdit(Admin_panel)
         self.lineEdit_new_admin_password.setGeometry(QtCore.QRect(200, 260, 150, 18))
         self.lineEdit_new_admin_password.setFrame(False)
         self.lineEdit_new_admin_password.setObjectName("lineEdit_new_admin_password")
+        self.btn_edit = QtWidgets.QPushButton(Admin_panel)
+        self.btn_edit.setGeometry(QtCore.QRect(20, 10, 90, 25))
+        self.btn_edit.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btn_edit.setObjectName("btn_edit")
+        self.widget = QtWidgets.QWidget(Admin_panel)
+        self.widget.setGeometry(QtCore.QRect(20, 290, 330, 30))
+        self.widget.setObjectName("widget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.widget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.btn_delete = QtWidgets.QPushButton(self.widget)
+        self.btn_delete.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btn_delete.setObjectName("btn_delete")
+        self.horizontalLayout.addWidget(self.btn_delete)
+        self.btn_add = QtWidgets.QPushButton(self.widget)
+        self.btn_add.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btn_add.setObjectName("btn_add")
+        self.horizontalLayout.addWidget(self.btn_add)
 
         self.get_info_from_db()
         self.show_data()
@@ -129,7 +129,7 @@ class Ui_Admin_panel(object):
             if not selected_rows:
                 return
 
-            selected_ids = set(item.data(QtCore.Qt.DisplayRole) for item in selected_rows if item.column() == 0)
+            selected_ids = set(self.tableWidget.item(row.row(), 0).text() for row in selected_rows)
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Warning)
             msg.setWindowTitle('Удаление пользователя')
@@ -138,9 +138,11 @@ class Ui_Admin_panel(object):
             btn = msg.exec_()
             if btn == QtWidgets.QMessageBox.Ok:
                 for selected_id in selected_ids:
+                    print(selected_id)
                     self.cursor.execute(f"DELETE FROM Users WHERE id = ?", [selected_id])
             self.db.commit()
-            self.show_data()
+            self.get_info_from_db()
+            self.fill_table(self.info_for_search)
 
         except Exception as e:
             traceback.print_exc()
@@ -157,13 +159,9 @@ class Ui_Admin_panel(object):
             new_value = field.text()
             user_id = self.tableWidget.item(row, 0).text()
             col_name = columns[self.tableWidget.horizontalHeaderItem(column).text()]
-            print(col_name, new_value)
 
             self.cursor.execute(
                 f"UPDATE Users SET {col_name} = ? WHERE id = ?", [new_value, user_id])
-
         self.db.commit()
         self.get_info_from_db()
         self.fill_table(self.info_for_search)
-
-

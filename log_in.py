@@ -43,7 +43,6 @@ class Login(QtWidgets.QMainWindow, qt_authorization_form.Ui_Authorize_form):
 
 if __name__ == "__main__":
     import sys
-
     app = QtWidgets.QApplication([])
     window = Login()
     window.show()

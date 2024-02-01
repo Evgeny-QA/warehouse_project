@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>490</width>
+    <width>460</width>
     <height>380</height>
    </rect>
   </property>
@@ -18,31 +18,21 @@
     <rect>
      <x>20</x>
      <y>30</y>
-     <width>451</width>
-     <height>251</height>
+     <width>417</width>
+     <height>250</height>
     </rect>
    </property>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>30</x>
      <y>330</y>
-     <width>451</width>
+     <width>401</width>
      <height>25</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QPushButton" name="btn_cart_get_order">
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>Подтвердить заказ</string>
-      </property>
-     </widget>
-    </item>
     <item>
      <widget class="QPushButton" name="btn_cart_delete">
       <property name="cursor">
@@ -68,7 +58,7 @@
   <widget class="QLabel" name="label_all_rpice">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>250</x>
      <y>290</y>
      <width>70</width>
      <height>20</height>
@@ -81,14 +71,30 @@
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
     <rect>
-     <x>370</x>
+     <x>330</x>
      <y>290</y>
-     <width>100</width>
+     <width>106</width>
      <height>20</height>
     </rect>
    </property>
    <property name="frame">
     <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_cart_get_order">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>290</y>
+     <width>180</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>PointingHandCursor</cursorShape>
+   </property>
+   <property name="text">
+    <string>Подтвердить заказ</string>
    </property>
   </widget>
  </widget>

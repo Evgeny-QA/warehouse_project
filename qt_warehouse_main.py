@@ -19,6 +19,7 @@ class Ui_MainWindow(object):
         self.cursor = self.db.cursor()
         self.selected_warehouse = None
         self.current_user = user
+        self.info_for_search = None
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -83,8 +84,9 @@ class Ui_MainWindow(object):
         self.menu.addAction(self.action_5)
         self.menubar_warehouse.addAction(self.menu.menuAction())
 
-        self.show_data_main()
         self.get_warehouses_list()
+        self.get_info_from_db()
+        self.show_data_main()
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -107,11 +109,16 @@ class Ui_MainWindow(object):
         self.action_2.triggered.connect(partial(self.open_window, qt_add_good.Ui_add_good(self.current_user)))
         self.action_4.triggered.connect(partial(self.open_window, qt_orders_history.Ui_Orders_History(self.current_user)))
         self.action_5.triggered.connect(partial(self.open_window, qt_admin_panel.Ui_Admin_panel(self.current_user)))
-        self.lineEdit_search.returnPressed.connect(partial(self.show_data_main))
+        self.lineEdit_search.returnPressed.connect(partial(self.show_selected_warehouse_goods))
         self.btn_search.clicked.connect(partial(self.show_selected_warehouse_goods))
         self.btn_cancel_changes.clicked.connect(partial(self.show_selected_warehouse_goods))
         self.btn_delete.clicked.connect(partial(self.delete_good))
         self.btn_take_changes.clicked.connect(partial(self.change_data))
+
+    def get_info_from_db(self):
+        self.cursor.execute(f"""SELECT good_name, amount, measure_unit, price, time_start, time_to_end, description,
+        article_number, image FROM Goods""")
+        self.info_for_search = self.cursor.fetchall()
 
     def open_window(self, window):
         self.main_window = QtWidgets.QMainWindow()
@@ -133,26 +140,31 @@ class Ui_MainWindow(object):
                     button.setText("Открыть")
                     button.clicked.connect(partial(self.open_image, data))
                     self.table_warehouse.setCellWidget(row_number, column, button)
+                if column == len(row_data)-2:
+                    item = QtWidgets.QTableWidgetItem(str(data))
+                    if column == len(row_data) - 2:
+                        item.setFlags(QtCore.Qt.ItemIsEnabled)
+                        self.table_warehouse.setItem(row_number, column, item)
                 else:
                     self.table_warehouse.setItem(row_number, column, QtWidgets.QTableWidgetItem(str(data)))
 
     def show_data_main(self, selected_warehouse_data=None):
         if selected_warehouse_data is None:
-            search_text = self.lineEdit_search.text()
-            if search_text:
-                self.cursor.execute(f"""SELECT good_name, amount, measure_unit, price, time_start, time_to_end,
-                description, article_number, image FROM Goods WHERE LOWER(good_name) LIKE LOWER(?)""",
-                                    [f"%{search_text}%"])
-            else:
-                self.cursor.execute("""SELECT good_name, amount, measure_unit, price, time_start, time_to_end,
-                description, article_number, image FROM Goods""")
-            res = self.cursor.fetchall()
-            if not res:
-                QtWidgets.QMessageBox.information(self.table_warehouse, 'Поиск товаров', 'Данные не найдены!')
-            else:
-                self.fill_table(res)
+            info_for_search = self.info_for_search
         else:
-            self.fill_table(selected_warehouse_data)
+            info_for_search = selected_warehouse_data
+
+        search_text = self.lineEdit_search.text().lower()
+        if search_text:
+            res = []
+            for info in info_for_search:
+                if info[0].lower() == search_text or info[0].lower().startswith(search_text.lower()):
+                    res.append(info)
+            return self.fill_table(res) if res != [] else (
+                QtWidgets.QMessageBox.information(self.table_warehouse, 'Ошибка поиска', 'Данные не найдены!'))
+        else:
+            return self.fill_table(info_for_search) if info_for_search != [] else (
+                QtWidgets.QMessageBox.information(self.table_warehouse, 'Ошибка поиска', 'Данные не найдены!'))
 
     def get_warehouses_list(self):
         self.comboBox_warehouses.clear()
@@ -163,15 +175,15 @@ class Ui_MainWindow(object):
 
     def show_selected_warehouse_goods(self):
         if self.comboBox_warehouses.currentText() != 'Все склады':
-            self.selected_warehouse = self.comboBox_warehouses.currentText()
+            selected_warehouse = self.comboBox_warehouses.currentText()
             self.cursor.execute(f"""SELECT good_name, amount, measure_unit, price, time_start, time_to_end,
                                 description, article_number, image FROM Goods
                                 JOIN Warehouses ON Goods.warehouse_id = Warehouses.id
-                                WHERE Warehouses.Warehouse_name = ?""", [self.selected_warehouse])
+                                WHERE Warehouses.Warehouse_name = ?""", [selected_warehouse])
             res = self.cursor.fetchall()
-            self.show_data_main(res)
+            return self.show_data_main(res)
         else:
-            self.show_data_main()
+            return self.show_data_main()
 
     def open_image(self, image_path):
         if image_path:
@@ -225,10 +237,3 @@ class Ui_MainWindow(object):
         self.db.commit()
         self.show_selected_warehouse_goods()
 
-
-
-# CHARACTER SET utf8 (либо Windows-1251 либо забрать данные из базы сразу же и потом поиск по этим данным)добавить в поле после TEXT если не сработает то забить
-# закрыть редактирование артикля в редактировании товаров
-# Перенести редактироование на главную страницу и сделать активные кнопки редактировать вкл выкл
-# Посмотреть стандартные сортировки в tableWidget
-# CHARACTER SET utf8

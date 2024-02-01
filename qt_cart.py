@@ -1,10 +1,6 @@
 import sqlite3
-import traceback
 from functools import partial
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QTableWidgetItem, QPushButton
-from PyQt5.QtGui import QPixmap
 
 import qt_client_data
 

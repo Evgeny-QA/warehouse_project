@@ -7,28 +7,28 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Admin_panel(object):
     def __init__(self, user):
-        self.table = 'Users'
         self.db = sqlite3.connect('Warehouses_db.db')
         self.cursor = self.db.cursor()
         self.current_user = user
+        self.info_for_search = None
 
     def setupUi(self, Admin_panel):
         Admin_panel.setObjectName("Admin_panel")
         Admin_panel.setWindowModality(QtCore.Qt.NonModal)
-        Admin_panel.resize(660, 370)
+        Admin_panel.resize(660, 340)
         self.tableWidget = QtWidgets.QTableWidget(Admin_panel)
         self.tableWidget.setGeometry(QtCore.QRect(20, 50, 620, 190))
-        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setObjectName("tableView_data")
         self.lineEdit_search = QtWidgets.QLineEdit(Admin_panel)
         self.lineEdit_search.setGeometry(QtCore.QRect(470, 10, 170, 30))
         self.lineEdit_search.setFrame(False)
         self.lineEdit_search.setObjectName("lineEdit_search")
-        self.lineEdit_new_admin_data = QtWidgets.QLineEdit(Admin_panel)
-        self.lineEdit_new_admin_data.setGeometry(QtCore.QRect(20, 260, 620, 25))
-        self.lineEdit_new_admin_data.setFrame(False)
-        self.lineEdit_new_admin_data.setObjectName("lineEdit_new_admin_data")
+        self.lineEdit_new_admin_login = QtWidgets.QLineEdit(Admin_panel)
+        self.lineEdit_new_admin_login.setGeometry(QtCore.QRect(20, 260, 150, 18))
+        self.lineEdit_new_admin_login.setFrame(False)
+        self.lineEdit_new_admin_login.setObjectName("lineEdit_new_admin_login")
         self.layoutWidget = QtWidgets.QWidget(Admin_panel)
-        self.layoutWidget.setGeometry(QtCore.QRect(20, 310, 620, 40))
+        self.layoutWidget.setGeometry(QtCore.QRect(20, 290, 620, 40))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -45,57 +45,83 @@ class Ui_Admin_panel(object):
         self.btn_add.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_add.setObjectName("btn_add")
         self.horizontalLayout.addWidget(self.btn_add)
+        self.lineEdit_new_admin_password = QtWidgets.QLineEdit(Admin_panel)
+        self.lineEdit_new_admin_password.setGeometry(QtCore.QRect(200, 260, 150, 18))
+        self.lineEdit_new_admin_password.setFrame(False)
+        self.lineEdit_new_admin_password.setObjectName("lineEdit_new_admin_password")
 
+        self.get_info_from_db()
         self.show_data()
 
         self.retranslateUi(Admin_panel)
         QtCore.QMetaObject.connectSlotsByName(Admin_panel)
 
-    def show_data(self):
-        search_text = self.lineEdit_search.text()
-        if search_text:
-            self.cursor.execute("SELECT * FROM Users WHERE LOWER(login) LIKE LOWER(?)", [f"%{search_text}%"])
-        else:
-            self.cursor.execute("SELECT * FROM Users")
-        res = self.cursor.fetchall()
-        if not res:
-            QtWidgets.QMessageBox.information(self.tableWidget, 'Поиск', 'Данные не найдены!')
-        else:
-            column_names = [column[0] for column in self.cursor.description]
-            self.tableWidget.setRowCount(0)
-            self.tableWidget.setColumnCount(len(res[0]))
-            self.tableWidget.setHorizontalHeaderLabels(column_names)
-            for row_number, row_data in enumerate(res):
-                self.tableWidget.insertRow(row_number)
-                for column_number, data in enumerate(row_data):
-                    self.tableWidget.setItem(row_number, column_number, QtWidgets.QTableWidgetItem(str(data)))
-        self.lineEdit_search.clear()
-
     def retranslateUi(self, Admin_panel):
         _translate = QtCore.QCoreApplication.translate
         Admin_panel.setWindowTitle(_translate("Admin_panel", "Панель администратора"))
         self.lineEdit_search.setPlaceholderText(_translate("Admin_panel", "Поиск..."))
-        self.lineEdit_new_admin_data.setPlaceholderText(_translate("Admin_panel", "Введите Имя и Пароль нового пользователя"))
+        self.lineEdit_new_admin_login.setPlaceholderText(_translate("Admin_panel", "Введите Login"))
         self.btn_edit.setText(_translate("Admin_panel", "Редактировать"))
         self.btn_delete.setText(_translate("Admin_panel", "Удалить"))
         self.btn_add.setText(_translate("Admin_panel", "Добавить"))
+        self.lineEdit_new_admin_password.setPlaceholderText(_translate("Admin_panel", "Введите Пароль"))
         self.btn_add.clicked.connect(partial(self.add_new_admin))
         self.btn_delete.clicked.connect(partial(self.delete_admin))
         self.btn_edit.clicked.connect(partial(self.change_data))
         self.lineEdit_search.returnPressed.connect(partial(self.show_data))
 
+    def get_info_from_db(self):
+        self.cursor.execute(f"SELECT * FROM Users")
+        self.info_for_search = self.cursor.fetchall()
+
+    def show_data(self):
+        search_text = self.lineEdit_search.text()
+        if search_text:
+            res = []
+            for info in self.info_for_search:
+                if info[1].lower() == search_text or info[1].lower().startswith(search_text.lower()):
+                    res.append(info)
+            self.fill_table(res) if res != [] else (
+                QtWidgets.QMessageBox.information(self.tableWidget, 'Ошибка поиска', 'Данные не найдены!'))
+        else:
+            return self.fill_table(self.info_for_search) if self.info_for_search !=[] else(
+                QtWidgets.QMessageBox.information(self.tableWidget, 'Ошибка поиска', 'Данные не найдены!'))
+
+    def fill_table(self, info):
+        column_names = ['ID', 'Имя(login)', 'Пароль']
+        self.tableWidget.setRowCount(0)
+        self.tableWidget.setColumnCount(len(info[0]))
+        self.tableWidget.setHorizontalHeaderLabels(column_names)
+        for row_number, row_data in enumerate(info):
+            self.tableWidget.insertRow(row_number)
+            for column_number, data in enumerate(row_data):
+                item = QtWidgets.QTableWidgetItem(str(data))
+                if column_number == 0:
+                    item.setFlags(QtCore.Qt.ItemIsEnabled)
+                self.tableWidget.setItem(row_number, column_number, item)
+
     def add_new_admin(self):
-        if len(self.lineEdit_new_admin_data.text().split(',')) != 2:
-            return QtWidgets.QMessageBox.information(self.tableWidget, 'Добавление администратора',
-                                              'Введены некорректные данные!\nВведите данные в формате Имя, Пароль.')
+        login = self.lineEdit_new_admin_login.text().strip()
+        password = self.lineEdit_new_admin_password.text().strip()
 
-        self.login = self.lineEdit_new_admin_data.text().split(',')[0].strip()
-        self.password = self.lineEdit_new_admin_data.text().split(',')[1].strip()
-
-        self.cursor.execute(f"INSERT INTO Users(login, password) VALUES(?,?)", [self.login, self.password])
-        self.db.commit()
-        self.lineEdit_new_admin_data.clear()
-        self.show_data()
+        if not login:
+            return QtWidgets.QMessageBox.information(self.tableWidget, 'Ошибка!', 'Введите Login (Имя пользователя).')
+        if not password:
+            return QtWidgets.QMessageBox.information(self.tableWidget, 'Ошибка!', 'Введите password (Пароль).')
+        self.cursor.execute("SELECT login FROM Users WHERE login = ?", [login])
+        login_check = self.cursor.fetchone()
+        if login_check is not None:
+            return QtWidgets.QMessageBox.information(self.tableWidget,
+                            'Ошибка!', f'Пользователь "{login}" уже зарегистрирован.\nВведите другой login.')
+        else:
+            self.cursor.execute(f"INSERT INTO Users(login, password) VALUES(?,?)", [login, password])
+            self.db.commit()
+            QtWidgets.QMessageBox.information(self.tableWidget, 'Информация!',
+                                              f'Пользователь {login} упсешно зарегистрирован.')
+        self.lineEdit_new_admin_login.clear()
+        self.lineEdit_new_admin_password.clear()
+        self.get_info_from_db()
+        return self.fill_table(self.info_for_search)
 
     def delete_admin(self):
         try:
@@ -121,25 +147,23 @@ class Ui_Admin_panel(object):
 
     def change_data(self):
         selected_fields = self.tableWidget.selectedItems()
+        columns = {'Имя(login)': 'login', 'Пароль': 'password'}
         if not selected_fields:
             return
 
         for field in selected_fields:
-            print(field)
             row = field.row()
-            print(row)
             column = field.column()
-            print(column)
             new_value = field.text()
-            print(new_value)
             user_id = self.tableWidget.item(row, 0).text()
-            print(user_id)
+            col_name = columns[self.tableWidget.horizontalHeaderItem(column).text()]
+            print(col_name, new_value)
 
             self.cursor.execute(
-                f"UPDATE Users SET {self.tableWidget.horizontalHeaderItem(column).text()} = ? WHERE id = ?",
-                [new_value, user_id])
+                f"UPDATE Users SET {col_name} = ? WHERE id = ?", [new_value, user_id])
 
         self.db.commit()
-        self.show_data()
+        self.get_info_from_db()
+        self.fill_table(self.info_for_search)
 
 

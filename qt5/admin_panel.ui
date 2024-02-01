@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>660</width>
-    <height>370</height>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,27 +42,27 @@
     <string>Поиск...</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_new_admin_data">
+  <widget class="QLineEdit" name="lineEdit_new_admin_login">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>260</y>
-     <width>620</width>
-     <height>40</height>
+     <width>150</width>
+     <height>18</height>
     </rect>
    </property>
    <property name="frame">
     <bool>false</bool>
    </property>
    <property name="placeholderText">
-    <string>Введите Имя и Пароль нового пользователя</string>
+    <string>Введите Login</string>
    </property>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>310</y>
+     <y>290</y>
      <width>621</width>
      <height>41</height>
     </rect>
@@ -99,6 +99,22 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_new_admin_password">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>260</y>
+     <width>150</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="frame">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Введите Пароль</string>
+   </property>
   </widget>
  </widget>
  <resources/>

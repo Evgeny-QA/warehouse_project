@@ -60,7 +60,6 @@ class Ui_add_good(object):
         self.btn_add_good.clicked.connect(partial(self.add_goods_to_db))
         self.btn_clear_data.clicked.connect(partial(self.clear_data))
 
-
     def show_data_main(self):
         self.cursor.execute("""SELECT good_name, amount, measure_unit, price, time_start, time_to_end, 
             description, article_number, image FROM Goods""")
@@ -122,7 +121,9 @@ class Ui_add_good(object):
                         button.clicked.connect(partial(self.open_image, data))
                         self.table_add_good.setCellWidget(row_number, column, button)
                     else:
-                        self.table_add_good.setItem(row_number, column, QtWidgets.QTableWidgetItem(str(data)))
+                        item = QtWidgets.QTableWidgetItem(str(data))
+                        item.setFlags(QtCore.Qt.ItemIsEnabled)
+                        self.table_add_good.setItem(row_number, column, item)
 
     def open_image(self, image_path):
         if image_path:

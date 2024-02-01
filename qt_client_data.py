@@ -1,5 +1,4 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from functools import partial
 import sqlite3
 
 
@@ -122,3 +121,9 @@ class Ui_Client_data(object):
         else:
             self.cart_class.current_window.show()
             event.accept()
+
+
+# 3 - Женя Сделать сортировку по столбикам
+# 5 - Женя Сделать создание документов Word Excel
+# 6 - Закинуть функцию автоочистки по просрочке
+# 7 - ВСЕ Навести порядок в модулях

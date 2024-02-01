@@ -98,7 +98,9 @@ class Ui_make_order(object):
                     button.clicked.connect(partial(self.open_image, data))
                     self.table_make_order.setCellWidget(row_number, column, button)
                 else:
-                    self.table_make_order.setItem(row_number, column, QtWidgets.QTableWidgetItem(str(data)))
+                    item = QtWidgets.QTableWidgetItem(str(data))
+                    item.setFlags(QtCore.Qt.ItemIsEnabled)
+                    self.table_make_order.setItem(row_number, column, item)
 
     def open_image(self, image_path):
         if image_path:

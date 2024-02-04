@@ -1,7 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from Db_functions import DataBase
-from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QPushButton, QWidget
 from os import startfile
+from functools import partial
 
 
 class Ui_Orders_History(object):
@@ -22,7 +23,8 @@ class Ui_Orders_History(object):
         self.retranslateUi(Orders_History)
         QtCore.QMetaObject.connectSlotsByName(Orders_History)
 
-        table_collums = ["№ Заказа", "Составитель ТТН", "Компания (заказчик)", "Адрес доставки", "Word", "Excel"]
+        table_collums = ["№ Заказа", "Составитель ТТН", "Компания (заказчик)",
+                         "Адрес доставки", "Word", "Excel", "Товары"]
         self.tableWidget_table_history.setColumnCount(len(table_collums))
         self.tableWidget_table_history.setHorizontalHeaderLabels(table_collums)
         self.fill_table()
@@ -33,30 +35,60 @@ class Ui_Orders_History(object):
         self.lineEdit.setPlaceholderText(_translate("Orders_History", "Поиск..."))
         self.lineEdit.returnPressed.connect(self.fill_table)
 
-    def start_word_excel(self, path):
-        return startfile(path)
+    def open_window_goods_info(self, order_id):
+        self.window_order_info = QWidget()
+        self.window_order_info.setWindowTitle('Новое окно')
+        self.window_order_info.setObjectName("Admin_panel")
+        self.window_order_info.setWindowModality(QtCore.Qt.NonModal)
+        self.tableWidget1 = QtWidgets.QTableWidget(self.window_order_info)
+        self.tableWidget1.setGeometry(QtCore.QRect(20, 20, 335, 300))
+        self.tableWidget1.setObjectName("tableView_data")
+        self.window_order_info.resize(375, 335)
+        self.window_order_info.show()
+        self.window_order_info.setWindowTitle(QtCore.QCoreApplication.translate("window_order_info", "Товары заказа"))
+
+        table_collums = ["Название", "ед. изм.", "Количество"]
+        self.tableWidget1.setColumnCount(len(table_collums))
+        self.tableWidget1.setHorizontalHeaderLabels(table_collums)
+        self.fill_table(order_id)
 
     def input_file_button(self, row, coll, file_text, file_path):
         button = QPushButton()
         button.setText(file_text)
-        button.clicked.connect(lambda: self.start_word_excel(file_path))
-        #button.clicked.connect(start_word_excel(file_path))    doesn't work
+        button.clicked.connect(partial(startfile, file_path))
         self.tableWidget_table_history.setCellWidget(row, coll, button)
 
-    def fill_table(self):
-        search_text = self.lineEdit.text()
-        print([search_text])
-        info = DataBase().get_completed_orders(search_text)
-        if len(info) == 0:
-            QtWidgets.QMessageBox.information(self.tableWidget_table_history, 'Ошибка поиска', 'Данные не найдены!')
-            return
-        self.tableWidget_table_history.setRowCount(len(info))
-        for row, str_info in enumerate(info):
-            len_str = len(str_info)
-            for coll, info_insert in enumerate(str_info):
-                if coll == len_str - 2:
-                    self.input_file_button(row, coll, "Word", info_insert)
-                elif coll == len_str - 1:
-                    self.input_file_button(row, coll, "Excel", info_insert)
-                else:
-                    self.tableWidget_table_history.setItem(row, coll, QtWidgets.QTableWidgetItem(str(info_insert)))
+    def fill_table(self, order_id=None):
+        if order_id is None:
+            search_text = self.lineEdit.text()
+            info = DataBase().get_completed_orders(search_text)
+            if len(info) == 0:
+                QtWidgets.QMessageBox.information(self.tableWidget_table_history, 'Ошибка поиска', 'Данные не найдены!')
+                return
+            self.tableWidget_table_history.setRowCount(len(info))
+            for row, str_info in enumerate(info):
+                len_str = len(str_info)
+                order_id = ""
+                for coll, info_insert in enumerate(str_info):
+                    if not order_id:
+                        order_id = info_insert
+                    if coll == len_str - 2:
+                        self.input_file_button(row, coll, "Word", info_insert)
+                    elif coll == len_str - 1:
+                        self.input_file_button(row, coll, "Excel", info_insert)
+                        button = QPushButton()
+                        button.setText("Посмотреть")
+                        button.clicked.connect(partial(self.open_window_goods_info, order_id))
+                        self.tableWidget_table_history.setCellWidget(row, coll + 1, button)
+                    else:
+                        self.tableWidget_table_history.setItem(row, coll, QtWidgets.QTableWidgetItem(str(info_insert)))
+        else:
+            info = DataBase().get_goods_info_from_order(order_id)
+            if len(info) == 0:
+                QtWidgets.QMessageBox.information(self.tableWidget1, 'Ошибка поиска', 'Данные не найдены!')
+                return
+            self.tableWidget1.setRowCount(len(info))
+            for row, str_info in enumerate(info):
+                for coll, info_insert in enumerate(str_info):
+                    self.tableWidget1.setItem(row, coll, QtWidgets.QTableWidgetItem(str(info_insert)))
+

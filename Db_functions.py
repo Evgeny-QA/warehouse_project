@@ -208,6 +208,55 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
+    '''qt_client_data'''
+    def add_new_order_into_bd_orders_and_good_in_orders(self, user_name, company_name, delivery_address, cart):
+        """Формирование заказа в бд
+        :param user_name - логин пользователя(кто зашел в программу), company_name - название компании,
+               delivery_address - адресс компании/доставки, cart - список списков товаров [[article_id, amount]...]
+        :return: """
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''SELECT U.id
+                                  FROM Orders O JOIN Users U ON O.user_id = U.id
+                                  WHERE login = ?''', [user_name])
+                user_id = cursor.fetchone()
+                print(user_id)
+
+                cursor.execute('''SELECT C.id
+                                  FROM Orders O JOIN Companies C ON O.company_id = C.id
+                                  WHERE company_name = ?''', [company_name])
+                company_id = cursor.fetchone()
+                if company_id is None:
+                    cursor.execute('''INSERT INTO Companies(company_name, company_address)
+                                      VALUES (?, ?)''', [company_name, delivery_address])
+                    cursor.execute('''SELECT MAX(id)
+                                      FROM Companies''')
+                    company_id = cursor.fetchone()
+                print(company_id)
+
+                cursor.execute('''INSERT INTO Orders(user_id, company_id, delivery_address, date_of_completion)
+                                  VALUES (?, ?, ?, ?)''', [user_id, company_id, delivery_address, str(date.today())])
+                cursor.execute('''SELECT MAX(id)
+                                  FROM Orders''')
+                order_id = cursor.fetchone()
+                cart_with_index = [[order_id] + i for i in cart]
+                print(cart_with_index)
+                cursor.executemany('''INSERT INTO Goods_in_order(order_id, good_id, amount)
+                                      VALUES(?, ?, ?)''', [cart_with_index])
+
+                for i in range(len(cart)):
+                    cursor.execute('''SELECT amount 
+                                      FROM Goods 
+                                      WHERE article_number = ?''', [cart[0]])
+                    good_warehouse_amount = int(cursor.fetchone()[0])
+                    cursor.execute('''UPDATE Goods SET amount = ? 
+                                      WHERE article_number = ?''', [good_warehouse_amount - cart[1], cart[0]])
+                return "Done add"
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
     '''qt_orders_history'''
     def get_completed_orders(self, search_text=None):
         """Получение всех заказов
@@ -269,3 +318,6 @@ class DataBase:
 # DataBase().add_new_user(0,0)
 # DataBase().delete_good(222)
 # DataBase().add_new_good_into_db(["Запчасть плюс", "Продуктыыыы", "1", 1, "1", 1, "1", "1", "1", "1"])
+
+user = "ф"
+# DataBase().add_new_order_into_bd_orders_and_good_in_orders(user, "sdfgsgdsgsdgsg", "73265863528")

@@ -77,6 +77,7 @@ class Ui_Client_data(object):
 
         self.client = client_data
         self.address = address_data
+        print(self.client, self.address, self.goods_in_order, self.price)
 
     def get_companies_list(self):
         self.comboBox_client.clear()

@@ -16,7 +16,6 @@ class Ui_make_order(object):
         self.selected_warehouse = None
         self.cart_count = 0
         self.goods_in_cart = []
-        self.flag = False
         self.current_window = None
         self.current_user = user
 
@@ -152,16 +151,14 @@ class Ui_make_order(object):
             traceback.print_exc()
 
     def close_window(self, event):
-        if self.flag is True:
-            return
-        else:
-            for good in self.goods_in_cart:
-                self.cursor.execute(f"SELECT amount FROM Goods WHERE article_number = ?", [int(good[0])])
-                current_quantity = int(self.cursor.fetchone()[0])
-                self.cursor.execute(f"UPDATE Goods SET amount = ? WHERE article_number = ?",
-                                    [current_quantity + int(good[1]), int(good[0])])
-            self.db.commit()
-        self.flag = False
+        for good in self.goods_in_cart:
+            self.cursor.execute(f"SELECT amount FROM Goods WHERE article_number = ?", [int(good[0])])
+            current_quantity = int(self.cursor.fetchone()[0])
+            self.cursor.execute(f"UPDATE Goods SET amount = ? WHERE article_number = ?",
+                                [current_quantity + int(good[1]), int(good[0])])
+        self.db.commit()
+        self.goods_in_cart = []
+        self.cart_count = 0
         event.accept()
 
     def open_window(self, window):

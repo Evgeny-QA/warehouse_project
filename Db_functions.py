@@ -209,50 +209,42 @@ class DataBase:
             return False
 
     '''qt_client_data'''
-    def add_new_order_into_bd_orders_and_good_in_orders(self, user_name, company_name, delivery_address, cart):
+    def add_new_order_into_bd_orders_and_good_in_orders(self, user_id, company_name, delivery_address, cart):
         """Формирование заказа в бд
-        :param user_name - логин пользователя(кто зашел в программу), company_name - название компании,
-               delivery_address - адресс компании/доставки, cart - список списков товаров [[article_id, amount]...]
+        :param user_id - id логина пользователя, company_name - название компании,
+               delivery_address - адрес компании/доставки, cart - список списков товаров [[article_id, amount]...]
         :return: """
         try:
             with self.db:
                 cursor = self.db.cursor()
-                cursor.execute('''SELECT U.id
-                                  FROM Orders O JOIN Users U ON O.user_id = U.id
-                                  WHERE login = ?''', [user_name])
-                user_id = cursor.fetchone()
-                print(user_id)
-
                 cursor.execute('''SELECT C.id
                                   FROM Orders O JOIN Companies C ON O.company_id = C.id
                                   WHERE company_name = ?''', [company_name])
-                company_id = cursor.fetchone()
+                company_id = cursor.fetchone()[0]
                 if company_id is None:
                     cursor.execute('''INSERT INTO Companies(company_name, company_address)
                                       VALUES (?, ?)''', [company_name, delivery_address])
                     cursor.execute('''SELECT MAX(id)
                                       FROM Companies''')
-                    company_id = cursor.fetchone()
-                print(company_id)
+                    company_id = cursor.fetchone()[0]
 
                 cursor.execute('''INSERT INTO Orders(user_id, company_id, delivery_address, date_of_completion)
                                   VALUES (?, ?, ?, ?)''', [user_id, company_id, delivery_address, str(date.today())])
                 cursor.execute('''SELECT MAX(id)
                                   FROM Orders''')
-                order_id = cursor.fetchone()
+                order_id = cursor.fetchone()[0]
                 cart_with_index = [[order_id] + i for i in cart]
-                print(cart_with_index)
-                cursor.executemany('''INSERT INTO Goods_in_order(order_id, good_id, amount)
-                                      VALUES(?, ?, ?)''', [cart_with_index])
 
-                for i in range(len(cart)):
+                cursor.executemany('''INSERT INTO Goods_in_order(order_id, good_id, amount)
+                                      VALUES(?, ?, ?)''', cart_with_index)
+                for good_id, amount in cart:
                     cursor.execute('''SELECT amount 
                                       FROM Goods 
-                                      WHERE article_number = ?''', [cart[0]])
-                    good_warehouse_amount = int(cursor.fetchone()[0])
-                    cursor.execute('''UPDATE Goods SET amount = ? 
-                                      WHERE article_number = ?''', [good_warehouse_amount - cart[1], cart[0]])
-                return "Done add"
+                                      WHERE article_number = ?''', [good_id])
+                    good_warehouse_amount = cursor.fetchone()[0]
+                    cursor.execute('''UPDATE Goods 
+                                      SET amount = ? 
+                                      WHERE article_number = ?''', [good_warehouse_amount - amount, good_id])
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False

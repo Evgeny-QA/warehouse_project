@@ -208,24 +208,46 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-        '''qt_orders_history'''
-
-    def get_completed_orders(self, search_text=""):
+    '''qt_orders_history'''
+    def get_completed_orders(self, search_text=None):
         """Получение всех заказов
         :return: Возвращает список заказов"""
         try:
             with self.db:
-                if search_text != "":
-                    search_text = f" WHERE LOWER(company_name) LIKE LOWER(%{search_text}%)",
                 cursor = self.db.cursor()
-                cursor.execute('''SELECT O.id, login, company_name, delivery_address, file_word, file_excel
-                                  FROM Users U JOIN Orders O ON U.id = O.user_id JOIN Companies C ON 
-                                       O.company_id = C.id''' + search_text)
+                if search_text not in (None, ""):
+                    cursor.execute('''SELECT O.id, login, company_name, delivery_address, file_word, file_excel
+                                      FROM Users U JOIN Orders O ON U.id = O.user_id JOIN Companies C ON 
+                                                        O.company_id = C.id
+                                      WHERE LOWER(company_name) LIKE LOWER(?)''', [f"%{search_text}%"])
+                else:
+                    cursor.execute('''SELECT O.id, login, company_name, delivery_address, file_word, file_excel
+                                      FROM Users U JOIN Orders O ON U.id = O.user_id JOIN Companies C ON 
+                                                        O.company_id = C.id''')
                 info = cursor.fetchall()
                 return info
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False
+
+    def get_goods_info_from_order(self, id):
+        """Получение информации о товарах заказа
+        :param id - ид заказа
+        :return: Возвращает список информации о товарах заказа"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''SELECT good_name, measure_unit, GO.amount
+                                  FROM Goods_in_order GO JOIN Goods G ON GO.good_id = G.article_number
+                                  WHERE order_id = ?''', [id])
+                info = cursor.fetchall()
+                return info
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+
+
 
 # DataBase().get_completed_orders()
 

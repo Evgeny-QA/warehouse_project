@@ -73,8 +73,6 @@ class Ui_Cart(object):
             res = self.cursor.fetchone()
             if res:
                 data.append(res)
-        if not data:
-            return QtWidgets.QMessageBox.information(self.table_widget_cart, 'Ошибка', 'Товары не найдены')
         res_data = []
         for good, i in zip(data, cart):
             res_data.append([good[0], str(i[1] + ' ' + good[1]), good[2], good[3]])

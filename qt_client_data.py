@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
+from Db_functions import DataBase
 
 
 class Ui_Client_data(object):
@@ -81,24 +82,27 @@ class Ui_Client_data(object):
 
     def push_into_tables(self):
         print('push')
+
         for good in self.goods_in_order:
             create_word = 'word'
             create_excel = 'excel'
             date_of_completion = 'date'
             self.cursor.execute("SELECT id FROM Companies WHERE company_name = ?", [self.client])
             company_id = self.cursor.fetchone()[0]
+            if company_id is None:
+                self.cursor.execute('''INSERT INTO Companies(company_name, company_address)
+                                  VALUES (?, ?)''', [self.client, self.address])
+                self.cursor.execute('SELECT MAX(id) FROM Companies')
+                company_id = self.cursor.fetchone()[0]
             self.cursor.execute("SELECT MAX(order_id)+1 FROM Goods_in_order")
             order_id = self.cursor.fetchone()[0]
 
-            print(order_id)
-            print(good[0])
-            print(good[1])
             # self.cursor.execute("""INSERT INTO Orders(user_id, company_id, delivery_address, date_of_completion,
             #  file_word, file_excel) VALUES(?, ?, ?, ?, ?, ?)""", [self.current_user, company_id, self.address,
             #                                                       date_of_completion, create_word, create_excel])
             # self.cursor.execute("INSERT INTO Goods_in_order(order_id, good_id, amount) VALUES(?, ?, ?)",
             #                     [int(order_id), int(good[0]), int(good[1])])
-            # print(self.current_user, company_id, self.address, date_of_completion, create_word, create_excel)
+            print(self.current_user, company_id, self.address, date_of_completion, create_word, create_excel)
 
     def get_companies_list(self):
         self.comboBox_client.clear()
@@ -143,3 +147,7 @@ class Ui_Client_data(object):
         else:
             self.cart_class.current_window.show()
             event.accept()
+
+
+
+# Добавить чек-бокс создавать или нет документы Word и Excel

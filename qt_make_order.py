@@ -96,9 +96,15 @@ class Ui_make_order(object):
                     button.setText("Открыть")
                     button.clicked.connect(partial(self.open_image, data))
                     self.table_make_order.setCellWidget(row_number, column, button)
+                if column == len(row_data) - 2:
+                    item = QtWidgets.QTableWidgetItem(str(data))
+                    if column == len(row_data) - 2:
+                        item.setFlags(QtCore.Qt.ItemIsEnabled)
+                        self.table_make_order.setItem(row_number, column, item)
                 else:
                     item = QtWidgets.QTableWidgetItem(str(data))
                     self.table_make_order.setItem(row_number, column, item)
+
 
     def open_image(self, image_path):
         if image_path:
@@ -114,23 +120,21 @@ class Ui_make_order(object):
         if not quantity.isdigit() or quantity.startswith('0') or quantity.strip() == '':
             return QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Некорректное количество товара!')
 
-        selected_fields = self.table_make_order.selectedItems()
-        if not selected_fields:
+        selected_field = self.table_make_order.selectedRanges()[-1]
+        if selected_field:
+            selected_field = selected_field.bottomRow() + 1
+        if not selected_field:
             return QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Выберите товар!')
 
-        for field in selected_fields:
-            row = field.row() + 1
-            article = self.table_make_order.item(row-1, 7).text()
-            self.cursor.execute("SELECT amount FROM Goods WHERE article_number = ?", [article])
-            good_quantity = self.cursor.fetchone()[0]
+        article = self.table_make_order.item(selected_field - 1, 7).text()
+        self.cursor.execute("SELECT amount FROM Goods WHERE article_number = ?", [article])
+        good_quantity = self.cursor.fetchone()[0]
 
         if float(quantity) > float(good_quantity):
             return QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Недопустимое количество товара!')
 
-        for field in selected_fields:
-            row = field.row() + 1
-            article = self.table_make_order.item(row-1, 7).text()
-            self.goods_in_cart.append([article, quantity])
+        article = self.table_make_order.item(selected_field - 1, 7).text()
+        self.goods_in_cart.append([article, quantity])
 
         self.cart_count += 1
         self.delete_for_cart(article, int(quantity))
@@ -162,6 +166,9 @@ class Ui_make_order(object):
         event.accept()
 
     def open_window(self, window):
+        if len(self.goods_in_cart) == 0:
+            QtWidgets.QMessageBox.information(self.table_make_order, 'Ошибка', 'Товары не найдены')
+            return
         self.current_window = QtWidgets.QApplication.activeWindow()
         self.main_window = QtWidgets.QMainWindow()
         self.ui = window

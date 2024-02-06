@@ -11,6 +11,7 @@ class Ui_Admin_panel(object):
         self.cursor = self.db.cursor()
         self.current_user = user
         self.info_for_search = None
+        self.flag = False
 
     def setupUi(self, Admin_panel):
         Admin_panel.setObjectName("Admin_panel")
@@ -50,8 +51,13 @@ class Ui_Admin_panel(object):
         self.btn_add.setObjectName("btn_add")
         self.horizontalLayout.addWidget(self.btn_add)
 
+        # При запуске:
+        # получаем данные по пользователям из БД чтобы поиск работал корректно во всех регистрах
+        # отображаем данные в таблице
+        # запускаем сортировку при нажатии на столбец
         self.get_info_from_db()
         self.show_data()
+        self.tableWidget.horizontalHeader().sectionClicked.connect(self.sort_table)
 
         self.retranslateUi(Admin_panel)
         QtCore.QMetaObject.connectSlotsByName(Admin_panel)
@@ -70,10 +76,22 @@ class Ui_Admin_panel(object):
         self.btn_edit.clicked.connect(partial(self.change_data))
         self.lineEdit_search.returnPressed.connect(partial(self.show_data))
 
+    # сортировака по столбикам
+    def sort_table(self, column):
+        if not self.flag or self.tableWidget.horizontalHeader().sortIndicatorSection() != column:
+            self.tableWidget.sortItems(column, QtCore.Qt.AscendingOrder)
+            self.flag = True
+        else:
+            self.tableWidget.sortItems(column, QtCore.Qt.DescendingOrder)
+            self.flag = False
+
+    # полeчаем данные по товарам для поиска
     def get_info_from_db(self):
         self.cursor.execute(f"SELECT * FROM Users")
         self.info_for_search = self.cursor.fetchall()
 
+    # отображаем данные пользователей
+    # отображаем данные введенные в окно поиск по выбранному пользователю
     def show_data(self):
         search_text = self.lineEdit_search.text()
         if search_text:
@@ -87,6 +105,7 @@ class Ui_Admin_panel(object):
             return self.fill_table(self.info_for_search) if self.info_for_search !=[] else(
                 QtWidgets.QMessageBox.information(self.tableWidget, 'Ошибка поиска', 'Данные не найдены!'))
 
+    # заполняем таблицу данными по колонкам(которые можно редактировать)
     def fill_table(self, info):
         column_names = ['ID', 'Имя(login)', 'Пароль']
         self.tableWidget.setRowCount(0)
@@ -100,6 +119,7 @@ class Ui_Admin_panel(object):
                     item.setFlags(QtCore.Qt.ItemIsEnabled)
                 self.tableWidget.setItem(row_number, column_number, item)
 
+    # добавление нового пользователя
     def add_new_admin(self):
         login = self.lineEdit_new_admin_login.text().strip()
         password = self.lineEdit_new_admin_password.text().strip()
@@ -123,6 +143,7 @@ class Ui_Admin_panel(object):
         self.get_info_from_db()
         return self.fill_table(self.info_for_search)
 
+    # удаление выбранного пользователя
     def delete_admin(self):
         try:
             selected_rows = self.tableWidget.selectedItems()
@@ -147,6 +168,7 @@ class Ui_Admin_panel(object):
         except Exception as e:
             traceback.print_exc()
 
+    # сохранение новых данных пользователя
     def change_data(self):
         selected_fields = self.tableWidget.selectedItems()
         columns = {'Имя(login)': 'login', 'Пароль': 'password'}

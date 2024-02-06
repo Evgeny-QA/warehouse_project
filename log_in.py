@@ -15,13 +15,15 @@ class Login(QtWidgets.QMainWindow, qt_authorization_form.Ui_Authorize_form):
         self.btn_enter.clicked.connect(self.login)
 
     def login(self):
+        #забираем логин и пароль введенные в соответствующие поля
         user_login = self.lineEdit_login.text()
         user_password = self.lineEdit_password.text()
-
+        #проверяем чтобы поля не были пустыми
         if len(user_login) == 0 or len(user_password) == 0:
             return
 
         try:
+            # проверяем зарегистрирован ли пользователь, если нет выводим соответствующее окно
             self.cursor.execute("SELECT id, password FROM users WHERE login=?", [user_login])
             check_pass = self.cursor.fetchone()
 
@@ -34,6 +36,7 @@ class Login(QtWidgets.QMainWindow, qt_authorization_form.Ui_Authorize_form):
             QMessageBox.critical(self, "Ошибка", f"Возникла ошибка: {str(e)}")
 
     def open_main_window(self, user):
+        # открываем главное окно после успешной авторизации
         self.main_window = QtWidgets.QMainWindow()
         self.ui = Ui_MainWindow(user)
         self.current_user = user

@@ -26,7 +26,7 @@ class Ui_Client_data(object):
         self.lineEdit_address.setFrame(False)
         self.lineEdit_address.setObjectName("lineEdit_address")
         self.layoutWidget = QtWidgets.QWidget(Client_data)
-        self.layoutWidget.setGeometry(QtCore.QRect(60, 190, 280, 25))
+        self.layoutWidget.setGeometry(QtCore.QRect(60, 210, 280, 25))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -45,7 +45,27 @@ class Ui_Client_data(object):
         self.comboBox_address = QtWidgets.QComboBox(Client_data)
         self.comboBox_address.setGeometry(QtCore.QRect(20, 110, 360, 20))
         self.comboBox_address.setObjectName("comboBox_address")
+        self.widget = QtWidgets.QWidget(Client_data)
+        self.widget.setGeometry(QtCore.QRect(20, 180, 266, 20))
+        self.widget.setObjectName("widget")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.widget)
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.label_documents = QtWidgets.QLabel(self.widget)
+        self.label_documents.setObjectName("label_documents")
+        self.horizontalLayout_2.addWidget(self.label_documents)
+        self.radioButton_Yes = QtWidgets.QRadioButton(self.widget)
+        self.radioButton_Yes.setChecked(True)
+        self.radioButton_Yes.setObjectName("radioButton_Yes")
+        self.horizontalLayout_2.addWidget(self.radioButton_Yes)
+        self.radioButton_No = QtWidgets.QRadioButton(self.widget)
+        self.radioButton_No.setObjectName("radioButton_No")
+        self.horizontalLayout_2.addWidget(self.radioButton_No)
 
+        # При запуске:
+        # присваиваем значение выбранное в комбобоксе строке для воода значения (клиент и адрес)
+        # получаем список ранее сохраненныъ компаний и адресов
+        # отображаем корзину при закрытии текущего окна
         self.comboBox_client.currentIndexChanged.connect(self.combo_box_client)
         self.comboBox_address.currentIndexChanged.connect(self.combo_box_address)
         self.get_companies_list()
@@ -58,12 +78,17 @@ class Ui_Client_data(object):
         _translate = QtCore.QCoreApplication.translate
         Client_data.setWindowTitle(_translate("Client_data_and_address", "Данные клиента"))
         self.lineEdit_client.setPlaceholderText(_translate("Client_data_and_address", "Введите данные заказчика"))
-        self.lineEdit_address.setPlaceholderText(_translate("Client_data", "Введите адрес доставки (Город, улица, дом, почтовый индекс)"))
+        self.lineEdit_address.setPlaceholderText(_translate("Client_data_and_address", "Введите адрес доставки (Город, улица, дом, почтовый индекс)"))
         self.btn_take_data.setText(_translate("Client_data_and_address", "Принять"))
         self.btn_cancel.setText(_translate("Client_data_and_address", "Отмена"))
+        self.label_documents.setText(_translate("Client_data_and_address", "Создавать документы Word/Excel"))
+        self.radioButton_Yes.setText(_translate("Client_data_and_address", "Да"))
+        self.radioButton_No.setText(_translate("Client_data_and_address", "Нет"))
         self.btn_take_data.clicked.connect(self.get_data)
         self.btn_cancel.clicked.connect(self.close_window)
 
+    # получаем данные по клиенту, адресу
+    # доавляем заказ в таблицу Orders, Goods_in_order, Companies(опциаонально, если ранее нет в таблице)
     def get_data(self):
         client_data = self.lineEdit_client.text().strip()
         address_data = self.lineEdit_address.text().strip()
@@ -78,31 +103,8 @@ class Ui_Client_data(object):
 
         self.client = client_data
         self.address = address_data
-        self.push_into_tables()
-
-    def push_into_tables(self):
-        print('push')
-
-        for good in self.goods_in_order:
-            create_word = 'word'
-            create_excel = 'excel'
-            date_of_completion = 'date'
-            self.cursor.execute("SELECT id FROM Companies WHERE company_name = ?", [self.client])
-            company_id = self.cursor.fetchone()[0]
-            if company_id is None:
-                self.cursor.execute('''INSERT INTO Companies(company_name, company_address)
-                                  VALUES (?, ?)''', [self.client, self.address])
-                self.cursor.execute('SELECT MAX(id) FROM Companies')
-                company_id = self.cursor.fetchone()[0]
-            self.cursor.execute("SELECT MAX(order_id)+1 FROM Goods_in_order")
-            order_id = self.cursor.fetchone()[0]
-
-            # self.cursor.execute("""INSERT INTO Orders(user_id, company_id, delivery_address, date_of_completion,
-            #  file_word, file_excel) VALUES(?, ?, ?, ?, ?, ?)""", [self.current_user, company_id, self.address,
-            #                                                       date_of_completion, create_word, create_excel])
-            # self.cursor.execute("INSERT INTO Goods_in_order(order_id, good_id, amount) VALUES(?, ?, ?)",
-            #                     [int(order_id), int(good[0]), int(good[1])])
-            print(self.current_user, company_id, self.address, date_of_completion, create_word, create_excel)
+        goods = [[int(i[0]), int(i[1])] for i in self.goods_in_order]
+        DataBase().add_new_order_into_bd_orders_and_good_in_orders(self.current_user, self.client, self.address, goods)
 
     def get_companies_list(self):
         self.comboBox_client.clear()
@@ -118,6 +120,7 @@ class Ui_Client_data(object):
         for address in addresses:
             self.comboBox_address.addItem(address)
 
+    # получаем введенные или выбранные данные Клиента
     def combo_box_client(self, index_client):
         if index_client == 0:
             self.lineEdit_client.clear()
@@ -128,6 +131,7 @@ class Ui_Client_data(object):
             self.lineEdit_client.setText(self.client)
             self.lineEdit_client.setEnabled(False)
 
+    # получаем введенные или выбранные данные Клиента и Адреса
     def combo_box_address(self, index_address):
         if index_address == 0:
             self.lineEdit_address.clear()
@@ -138,6 +142,7 @@ class Ui_Client_data(object):
             self.lineEdit_address.setText(self.address)
             self.lineEdit_address.setEnabled(False)
 
+    # отображаем корзину при закрытии текущего окна
     def close_window(self, event=None):
         self.client = None
         self.address = None
@@ -148,6 +153,3 @@ class Ui_Client_data(object):
             self.cart_class.current_window.show()
             event.accept()
 
-
-
-# Добавить чек-бокс создавать или нет документы Word и Excel

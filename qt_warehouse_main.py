@@ -85,6 +85,11 @@ class Ui_MainWindow(object):
         self.menu.addAction(self.action_5)
         self.menubar_warehouse.addAction(self.menu.menuAction())
 
+        # При запуске:
+        # получаем список имеющихся складов
+        # получаем данны по товарам из БД чтобы поиск работал корректно во всех регистрах
+        # отображаем таблицу с товарами
+        # запускаем сортировку при нажатии на столбец
         self.get_warehouses_list()
         self.get_info_from_db()
         self.show_data_main()
@@ -117,14 +122,16 @@ class Ui_MainWindow(object):
         self.btn_delete.clicked.connect(partial(self.delete_good))
         self.btn_take_changes.clicked.connect(partial(self.change_data))
 
+    # сортировака по столбикам
     def sort_table(self, column):
-        if not self.flag:
+        if not self.flag or self.table_warehouse.horizontalHeader().sortIndicatorSection() != column:
             self.table_warehouse.sortItems(column, QtCore.Qt.AscendingOrder)
             self.flag = True
         else:
             self.table_warehouse.sortItems(column, QtCore.Qt.DescendingOrder)
             self.flag = False
 
+    # полeчаем данные по товарам для поиска
     def get_info_from_db(self):
         self.cursor.execute(f"""SELECT good_name, amount, measure_unit, price, time_start, time_to_end, description,
         article_number, image FROM Goods""")
@@ -136,6 +143,7 @@ class Ui_MainWindow(object):
         self.ui.setupUi(self.main_window)
         self.main_window.show()
 
+    # заполняем таблицу данными по колонкам(которые можно редактировать)
     def fill_table(self, info):
         col_names = ['Название', 'Количество', 'Единица измер.', 'Цена', 'Годен с', 'Годен до', 'Описание',
                      'Артикль', 'Изображение']
@@ -158,6 +166,8 @@ class Ui_MainWindow(object):
                 else:
                     self.table_warehouse.setItem(row_number, column, QtWidgets.QTableWidgetItem(str(data)))
 
+    # отображаем данные по выбранному складу или по всем складам
+    # отображаем данные введенные в окно поиск по выбранному складу(всем складам)
     def show_data_main(self, selected_warehouse_data=None):
         if selected_warehouse_data is None:
             info_for_search = self.info_for_search
@@ -176,6 +186,7 @@ class Ui_MainWindow(object):
             return self.fill_table(info_for_search) if info_for_search != [] else (
                 QtWidgets.QMessageBox.information(self.table_warehouse, 'Ошибка поиска', 'Данные не найдены!'))
 
+    # список складов
     def get_warehouses_list(self):
         self.comboBox_warehouses.clear()
         warehouses = ["Все склады"]
@@ -183,6 +194,7 @@ class Ui_MainWindow(object):
         for warehouse in warehouses:
             self.comboBox_warehouses.addItem(warehouse)
 
+    # отображение товаров в выбранном складе
     def show_selected_warehouse_goods(self):
         if self.comboBox_warehouses.currentText() != 'Все склады':
             selected_warehouse = self.comboBox_warehouses.currentText()
@@ -197,6 +209,7 @@ class Ui_MainWindow(object):
             self.get_info_from_db()
             return self.show_data_main()
 
+    # открываем картинку в новом окне
     def open_image(self, image_path):
         if image_path:
             pixmap = QPixmap(image_path)
@@ -206,6 +219,7 @@ class Ui_MainWindow(object):
             self.image_label.setWindowTitle("Изображение")
             self.image_label.show()
 
+    # удаление выбранного товара
     def delete_good(self):
         try:
             selected_rows = self.table_warehouse.selectedItems()
@@ -231,6 +245,7 @@ class Ui_MainWindow(object):
         except Exception as e:
             traceback.print_exc()
 
+    # изменение данных в введенных в колонку
     def change_data(self):
         col_names = {'Название': 'good_name', 'Количество': 'amount', 'Единица измер.': 'measure_unit', 'Цена': 'price',
                      'Годен с': 'time_start', 'Годен до': 'time_to_end', 'Описание': 'description'}

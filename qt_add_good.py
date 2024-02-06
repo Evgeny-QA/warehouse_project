@@ -19,6 +19,7 @@ class Ui_add_good(object):
         self.downloaded_image_path = None
         self.data_to_upload = []
         self.current_user = user
+        self.flag = False
 
     def setupUi(self, add_good):
         add_good.setObjectName("add_good")
@@ -46,8 +47,13 @@ class Ui_add_good(object):
         self.btn_clear_data.setObjectName("btn_clear_data")
         self.horizontalLayout.addWidget(self.btn_clear_data)
 
+        # При запуске:
+        # заполняем таблицу данными
+        # создаем таблицу для добавления нового товара
+        # запускаем сортировку при нажатии на столбец
         self.show_data_main()
         self.fill_table()
+        self.table_add_good.horizontalHeader().sectionClicked.connect(self.sort_table)
 
         self.retranslateUi(add_good)
         QtCore.QMetaObject.connectSlotsByName(add_good)
@@ -60,6 +66,16 @@ class Ui_add_good(object):
         self.btn_add_good.clicked.connect(partial(self.add_goods_to_db))
         self.btn_clear_data.clicked.connect(partial(self.clear_data))
 
+    # сортировака при нажатии на столбик
+    def sort_table(self, column):
+        if not self.flag or self.table_add_good.horizontalHeader().sortIndicatorSection() != column:
+            self.table_add_good.sortItems(column, QtCore.Qt.AscendingOrder)
+            self.flag = True
+        else:
+            self.table_add_good.sortItems(column, QtCore.Qt.DescendingOrder)
+            self.flag = False
+
+    # получаем данные заполняем таблицу
     def show_data_main(self):
         self.cursor.execute("""SELECT good_name, amount, measure_unit, price, time_start, time_to_end, 
             description, article_number, image FROM Goods""")
@@ -69,6 +85,8 @@ class Ui_add_good(object):
         else:
             self.fill_table(res)
 
+    # заполняем таблицу для воода данных по новому товару
+    # заполняем таблицу с данными из БД
     def fill_table(self, info=None):
         if info is None:
             self.cursor.execute(f"SELECT * FROM Goods")
@@ -78,7 +96,6 @@ class Ui_add_good(object):
             self.tableWidget_new_data.setRowCount(1)
             self.tableWidget_new_data.setColumnCount(len(res[0])-1)
             self.tableWidget_new_data.setHorizontalHeaderLabels(col_names)
-            print(len(col_names))
             for column in range(len(col_names)):
                 item = QtWidgets.QTableWidgetItem()
                 self.tableWidget_new_data.setItem(0, column, item)
@@ -105,6 +122,8 @@ class Ui_add_good(object):
                     button.setText("Добавить")
                     button.clicked.connect(partial(self.get_data_and_img_for_download))
                     self.tableWidget_new_data.setCellWidget(0, column, button)
+                if column == len(col_names) - 4 or column == len(col_names) - 3:
+                    item.setText('гггг-мм-дд')
 
         else:
             col_names = ['Название', 'Количество', 'Единица измер.', 'Цена', 'Годен с', 'Годен до', 'Описание',
@@ -115,16 +134,17 @@ class Ui_add_good(object):
             for row_number, row_data in enumerate(info):
                 self.table_add_good.insertRow(row_number)
                 for column, data in enumerate(row_data):
-                    if column == len(row_data)-1:
+                    if column == len(row_data) - 1:
                         button = QPushButton()
                         button.setText("Открыть")
                         button.clicked.connect(partial(self.open_image, data))
                         self.table_add_good.setCellWidget(row_number, column, button)
                     else:
                         item = QtWidgets.QTableWidgetItem(str(data))
-                        item.setFlags(QtCore.Qt.ItemIsEnabled)
+                        item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
                         self.table_add_good.setItem(row_number, column, item)
 
+    # открываем картинку
     def open_image(self, image_path):
         if image_path:
             pixmap = QPixmap(image_path)
@@ -134,6 +154,7 @@ class Ui_add_good(object):
             self.image_label.setWindowTitle("Изображение")
             self.image_label.show()
 
+    # получаем данные для сохранения картинки в папку
     def get_data_and_img_for_download(self):
         row_count = self.tableWidget_new_data.rowCount()
         col_count = self.tableWidget_new_data.columnCount()
@@ -158,11 +179,13 @@ class Ui_add_good(object):
         self.data_to_upload[-1] = self.get_article()
         return self.data_to_upload
 
+    # получаем номер артикля (идентичен ID товара)
     def get_article(self):
-        self.cursor.execute(f"SELECT MAX(article_number) +1 FROM Goods")
+        self.cursor.execute(f"SELECT MAX(article_number) + 1 FROM Goods")
         article = self.cursor.fetchone()[0]
         return article
 
+    # сохранение картинки в папку
     def save_img(self, img_path):
         if self.image_path and self.data_to_upload:
             if not os.path.exists('Goods_img'):
@@ -178,6 +201,7 @@ class Ui_add_good(object):
 
             return self.downloaded_image_path
 
+    # добавление данных по новому товару в БД
     def add_goods_to_db(self):
         if self.save_img(self.image_path):
             self.data_to_upload.append(self.downloaded_image_path)
@@ -198,6 +222,7 @@ class Ui_add_good(object):
             self.data_to_upload = []
         return self.cursor.rowcount > 0
 
+    # очистка данных после загрузки картинки
     def clear_data(self):
         self.fill_table()
         self.image_path = None

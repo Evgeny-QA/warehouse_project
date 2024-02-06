@@ -47,6 +47,9 @@ class Ui_Cart(object):
         self.lineEdit_sum.setObjectName("lineEdit")
         self.lineEdit_sum.setReadOnly(True)
 
+        # При запуске:
+        # отображаем содержимое корзины в таблице
+        # отображаем окно Сделать заказ при закрытии Корзины
         self.show_cart(self.make_order_class.goods_in_cart)
         Cart.closeEvent = self.close_window
 
@@ -65,6 +68,7 @@ class Ui_Cart(object):
         self.btn_cart_get_order.clicked.connect(partial(self.open_window, qt_client_data.Ui_Client_data(
             self, self.make_order_class.current_user, self.make_order_class.goods_in_cart, self.all_price)))
 
+    # отображаем данные в Корзине
     def show_cart(self, cart):
         data = []
         for good in cart:
@@ -80,6 +84,7 @@ class Ui_Cart(object):
         self.lineEdit_sum.setText(f'{self.all_price}')
         return self.fill_table(res_data)
 
+    # заполняем таблицу данными по колонкам(которые нельзя редактировать)
     def fill_table(self, info):
         col_names = ['Название', 'Количество', 'Цена', 'Артикль']
         self.table_widget_cart.setRowCount(0)
@@ -90,6 +95,7 @@ class Ui_Cart(object):
             for column, data in enumerate(row_data):
                 self.table_widget_cart.setItem(row_number, column, QtWidgets.QTableWidgetItem(str(data)))
 
+    # очистка корзины
     def clear_cart(self):
         for good in self.make_order_class.goods_in_cart:
             self.cursor.execute(f"SELECT amount FROM Goods WHERE article_number = ?", [int(good[0])])
@@ -105,10 +111,12 @@ class Ui_Cart(object):
         self.make_order_class.cart_count = 0
         self.make_order_class.show_data()
 
+    # отображаем окно Сделать заказ при закрытии Корзины
     def close_window(self, event):
         self.make_order_class.current_window.show()
         event.accept()
 
+    # возвращаем товары в БД в случае нажатия "очистить корзину"
     def delete_from_cart(self):
         selected_rows = self.table_widget_cart.selectedItems()
         if not selected_rows:
@@ -144,6 +152,7 @@ class Ui_Cart(object):
         else:
             self.show_cart(self.make_order_class.goods_in_cart)
 
+    # открываем окно подтверждения заказа
     def open_window(self, window):
         self.current_window = QtWidgets.QApplication.activeWindow()
         self.main_window = QtWidgets.QMainWindow()

@@ -18,6 +18,7 @@ class Ui_make_order(object):
         self.goods_in_cart = []
         self.current_window = None
         self.current_user = user
+        self.flag = False
 
     def setupUi(self, make_order):
         make_order.setObjectName("make_order")
@@ -46,8 +47,13 @@ class Ui_make_order(object):
         self.table_make_order.setGeometry(QtCore.QRect(10, 20, 680, 290))
         self.table_make_order.setObjectName("table_make_order")
 
+        # При запуске:
+        # отображаем таблицу с товарами
+        # запускаем функцию возвращения товаров в БД в случае закрытия окна
+        # запускаем сортировку при нажатии на столбец
         self.show_data()
         make_order.closeEvent = self.close_window
+        self.table_make_order.horizontalHeader().sectionClicked.connect(self.sort_table)
 
         self.retranslateUi(make_order)
         QtCore.QMetaObject.connectSlotsByName(make_order)
@@ -64,6 +70,16 @@ class Ui_make_order(object):
         QtCore.QMetaObject.connectSlotsByName(make_order)
         self.btn_cart.clicked.connect(partial(self.open_window, qt_cart.Ui_Cart(self, self.current_user)))
 
+    # сортировака по столбикам
+    def sort_table(self, column):
+        if not self.flag or self.table_make_order.horizontalHeader().sortIndicatorSection() != column:
+            self.table_make_order.sortItems(column, QtCore.Qt.AscendingOrder)
+            self.flag = True
+        else:
+            self.table_make_order.sortItems(column, QtCore.Qt.DescendingOrder)
+            self.flag = False
+
+    # отображаем данные по товарам
     def show_data(self, selected_warehouse_data=None):
         if selected_warehouse_data is None:
             search_text = self.lineEdit_search_order.text()
@@ -82,6 +98,7 @@ class Ui_make_order(object):
         else:
             self.fill_table(selected_warehouse_data)
 
+    # заполняем таблицу данными по колонкам(нельзя редактировать)
     def fill_table(self, info):
         col_names = ['Название', 'Количество', 'Единица измер.', 'Цена', 'Годен с', 'Годен до', 'Описание',
                      'Артикль', 'Изображение']
@@ -91,21 +108,16 @@ class Ui_make_order(object):
         for row_number, row_data in enumerate(info):
             self.table_make_order.insertRow(row_number)
             for column, data in enumerate(row_data):
+                item = QtWidgets.QTableWidgetItem(str(data))
+                item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
+                self.table_make_order.setItem(row_number, column, item)
                 if column == len(row_data)-1:
                     button = QPushButton()
                     button.setText("Открыть")
                     button.clicked.connect(partial(self.open_image, data))
                     self.table_make_order.setCellWidget(row_number, column, button)
-                if column == len(row_data) - 2:
-                    item = QtWidgets.QTableWidgetItem(str(data))
-                    if column == len(row_data) - 2:
-                        item.setFlags(QtCore.Qt.ItemIsEnabled)
-                        self.table_make_order.setItem(row_number, column, item)
-                else:
-                    item = QtWidgets.QTableWidgetItem(str(data))
-                    self.table_make_order.setItem(row_number, column, item)
 
-
+    # открываем картинку
     def open_image(self, image_path):
         if image_path:
             pixmap = QPixmap(image_path)
@@ -115,6 +127,7 @@ class Ui_make_order(object):
             self.image_label.setWindowTitle("Изображение")
             self.image_label.show()
 
+    # добавление данных в корзину
     def add_to_cart(self):
         quantity = self.lineEdit_quantity.text()
         if not quantity.isdigit() or quantity.startswith('0') or quantity.strip() == '':
@@ -142,6 +155,7 @@ class Ui_make_order(object):
         _translate = QtCore.QCoreApplication.translate
         self.btn_cart.setText(_translate("make_order", f"Корзина {self.cart_count}"))
 
+    # удаление данных в корзину
     def delete_for_cart(self, good_article, quantity_for_delete):
         try:
             self.cursor.execute(f"SELECT amount FROM Goods WHERE article_number = ?", [good_article])
@@ -154,6 +168,7 @@ class Ui_make_order(object):
         except Exception as e:
             traceback.print_exc()
 
+    # возвращаем товары в БД в случае закрытия окна
     def close_window(self, event):
         for good in self.goods_in_cart:
             self.cursor.execute(f"SELECT amount FROM Goods WHERE article_number = ?", [int(good[0])])
@@ -165,6 +180,7 @@ class Ui_make_order(object):
         self.cart_count = 0
         event.accept()
 
+    # открываем окно Корзина и скрываем текущее
     def open_window(self, window):
         if len(self.goods_in_cart) == 0:
             QtWidgets.QMessageBox.information(self.table_make_order, 'Ошибка', 'Товары не найдены')
@@ -175,6 +191,4 @@ class Ui_make_order(object):
         self.ui.setupUi(self.main_window)
         self.main_window.show()
         self.current_window.hide()
-
-
 

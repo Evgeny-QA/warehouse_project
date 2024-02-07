@@ -154,7 +154,6 @@ class Ui_Client_data(object):
         if not event:
             QtWidgets.QApplication.activeWindow().close()
         else:
-            self.cart_class.current_window.close()
-            # self.cart_class.current_window.show()  # показать корзину(но кнопки будут заблокированы, т.к. она пустая)
+            self.cart_class.current_window.show()
             event.accept()
 

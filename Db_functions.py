@@ -359,6 +359,7 @@ class DataBase:
                 cursor_orders_history.executemany(f'''INSERT INTO {table_names[1]} (id, good_name, measure_unit, amount)
                                                       VALUES (?, ?, ?, ?)''', goods)
                 cursor_warehouse.execute('''DELETE FROM Goods_in_order''')
+
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False

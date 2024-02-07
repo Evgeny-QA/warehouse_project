@@ -47,7 +47,7 @@ class Ui_Orders_History(object):
         QtCore.QMetaObject.connectSlotsByName(Orders_History)
 
         table_collums = ["№ Заказа", "Составитель ТТН", "Компания (заказчик)",
-                         "Адрес доставки", "Word", "Excel", "Товары"]
+                         "Адрес доставки", "Дата оформления", "Word", "Excel", "Товары"]
         self.tableWidget_table_history.setColumnCount(len(table_collums))
         self.tableWidget_table_history.setHorizontalHeaderLabels(table_collums)
         self.fill_table()

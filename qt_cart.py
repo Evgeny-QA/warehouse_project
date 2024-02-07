@@ -50,8 +50,10 @@ class Ui_Cart(object):
         # При запуске:
         # отображаем содержимое корзины в таблице
         # отображаем окно Сделать заказ при закрытии Корзины
+        # блокируем нажатие кнопок если корзина пустая
         self.show_cart(self.make_order_class.goods_in_cart)
         Cart.closeEvent = self.close_window
+        self.block_btns()
 
         self.retranslateUi(Cart)
         QtCore.QMetaObject.connectSlotsByName(Cart)
@@ -84,6 +86,16 @@ class Ui_Cart(object):
         self.lineEdit_sum.setText(f'{self.all_price}')
         return self.fill_table(res_data)
 
+    def block_btns(self):
+        if len(self.make_order_class.goods_in_cart) == 0:
+            self.btn_cart_get_order.setEnabled(False)
+            self.btn_cart_delete.setEnabled(False)
+            self.btn_cart_clear.setEnabled(False)
+        else:
+            self.btn_cart_get_order.setEnabled(True)
+            self.btn_cart_delete.setEnabled(True)
+            self.btn_cart_clear.setEnabled(True)
+
     # заполняем таблицу данными по колонкам(которые нельзя редактировать)
     def fill_table(self, info):
         col_names = ['Название', 'Количество', 'Цена', 'Артикль']
@@ -111,6 +123,7 @@ class Ui_Cart(object):
         self.make_order_class.cart_count = 0
         self.make_order_class.get_info_from_db()
         self.make_order_class.show_data()
+        self.block_btns()
 
     # отображаем окно Сделать заказ при закрытии Корзины
     def close_window(self, event):
@@ -154,6 +167,7 @@ class Ui_Cart(object):
             self.make_order_class.show_data()
         else:
             self.show_cart(self.make_order_class.goods_in_cart)
+        self.block_btns()
 
     # открываем окно подтверждения заказа
     def open_window(self, window):

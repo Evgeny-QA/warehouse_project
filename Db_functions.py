@@ -4,8 +4,9 @@ from datetime import date, datetime
 class DataBase:
     def __init__(self):
         self.db_file = 'Warehouses_db.db'
+        self.db_old_orders = "Orders_history.db"
         self.db = sql.connect(self.db_file)
-
+        self.db1 = sql.connect(self.db_old_orders)
     '''log_in'''
     def log_in(self, login):  # 27 log_in
         """Вход в приложение базы пользователем
@@ -289,6 +290,54 @@ class DataBase:
                                   WHERE order_id = ?''', [id])
                 info = cursor.fetchall()
                 return info
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+    def get_goods_info_from_old_orders(self, between, year, id):
+        """Получение информации о товарах заказа
+        :param id - ид заказа
+        :return: Возвращает список информации о товарах заказа"""
+        try:
+            tables_order_goods_info = []
+            table_name_goods = [f"Goods_in_order_{months[name]}_{year}" for name in between]
+            print(table_name_goods)
+            with self.db1:
+                cursor = self.db1.cursor()
+                for name in table_name_goods:
+                    cursor.execute(f'''SELECT good_name, measure_unit, amount
+                                       FROM {name}
+                                       WHERE id = {id}''')
+                    info = cursor.fetchall()
+                    print(info)
+                    tables_order_goods_info += info
+                return tables_order_goods_info
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+    def get_old_orders(self, between, year):
+        """Получение информации о товарах заказа
+        :param id - ид заказа
+        :return: Возвращает список информации о товарах заказов"""
+        try:
+            global months
+            months = {"Январь": "January", "Февраль": "February", "Март": "March", "Апрель": "April",
+                      "Май": "May", "Июнь": "June", "Июль": "July", "Август": "August", "Сентябрь": "September",
+                      "Октябрь": "October", "Ноябрь": "November", "Декабрь": "December"}
+            tables_order_info = []
+
+            tables_orders_names = [f"Orders_{months[name]}_{year}" for name in between]
+            print(tables_orders_names)
+
+            with self.db1:
+                cursor = self.db1.cursor()
+                for name in tables_orders_names:
+                    cursor.execute(f'''SELECT *
+                                       FROM {name}''')
+                    info = cursor.fetchall()
+                    tables_order_info += info
+                return tables_order_info
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False

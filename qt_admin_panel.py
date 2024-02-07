@@ -93,11 +93,11 @@ class Ui_Admin_panel(object):
     # отображаем данные пользователей
     # отображаем данные введенные в окно поиск по выбранному пользователю
     def show_data(self):
-        search_text = self.lineEdit_search.text()
+        search_text = self.lineEdit_search.text().lower()
         if search_text:
             res = []
             for info in self.info_for_search:
-                if info[1].lower() == search_text or info[1].lower().startswith(search_text.lower()):
+                if info[1].lower() == search_text or search_text in info[1].lower():
                     res.append(info)
             self.fill_table(res) if res != [] else (
                 QtWidgets.QMessageBox.information(self.tableWidget, 'Ошибка поиска', 'Данные не найдены!'))

@@ -178,7 +178,7 @@ class Ui_MainWindow(object):
         if search_text:
             res = []
             for info in info_for_search:
-                if info[0].lower() == search_text or info[0].lower().startswith(search_text.lower()):
+                if info[0].lower() == search_text or search_text in info[0].lower():
                     res.append(info)
             return self.fill_table(res) if res != [] else (
                 QtWidgets.QMessageBox.information(self.table_warehouse, 'Ошибка поиска', 'Данные не найдены!'))

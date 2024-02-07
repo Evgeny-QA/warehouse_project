@@ -14,6 +14,7 @@ class Ui_make_order(object):
         self.db = sqlite3.connect('Warehouses_db.db')
         self.cursor = self.db.cursor()
         self.selected_warehouse = None
+        self.info_for_search = None
         self.cart_count = 0
         self.goods_in_cart = []
         self.current_window = None
@@ -48,9 +49,11 @@ class Ui_make_order(object):
         self.table_make_order.setObjectName("table_make_order")
 
         # При запуске:
+        # получаем данны по товарам из БД чтобы поиск работал корректно во всех регистрах
         # отображаем таблицу с товарами
         # запускаем функцию возвращения товаров в БД в случае закрытия окна
         # запускаем сортировку при нажатии на столбец
+        self.get_info_from_db()
         self.show_data()
         make_order.closeEvent = self.close_window
         self.table_make_order.horizontalHeader().sectionClicked.connect(self.sort_table)
@@ -79,24 +82,25 @@ class Ui_make_order(object):
             self.table_make_order.sortItems(column, QtCore.Qt.DescendingOrder)
             self.flag = False
 
+    # полeчаем данные по товарам для поиска
+    def get_info_from_db(self):
+        self.cursor.execute(f"""SELECT good_name, amount, measure_unit, price, time_start, time_to_end, description,
+        article_number, image FROM Goods""")
+        self.info_for_search = self.cursor.fetchall()
+
     # отображаем данные по товарам
-    def show_data(self, selected_warehouse_data=None):
-        if selected_warehouse_data is None:
-            search_text = self.lineEdit_search_order.text()
-            if search_text:
-                self.cursor.execute(f"""SELECT good_name, amount, measure_unit, price, time_start, time_to_end,
-                description, article_number, image FROM Goods WHERE LOWER(good_name) LIKE LOWER(?)""",
-                                    [f"%{search_text}%"])
-            else:
-                self.cursor.execute("""SELECT good_name, amount, measure_unit, price, time_start, time_to_end,
-                description, article_number, image FROM Goods""")
-            res = self.cursor.fetchall()
-            if not res:
-                QtWidgets.QMessageBox.information(self.table_make_order, 'Поиск товаров', 'Данные не найдены!')
-            else:
-                self.fill_table(res)
+    def show_data(self):
+        search_text = self.lineEdit_search_order.text().lower()
+        if search_text:
+            res = []
+            for info in self.info_for_search:
+                if info[0].lower() == search_text or search_text in info[0].lower():
+                    res.append(info)
+            return self.fill_table(res) if res != [] else (
+                QtWidgets.QMessageBox.information(self.table_make_order, 'Ошибка поиска', 'Данные не найдены!'))
         else:
-            self.fill_table(selected_warehouse_data)
+            return self.fill_table(self.info_for_search) if self.info_for_search != [] else (
+                QtWidgets.QMessageBox.information(self.table_make_order, 'Ошибка поиска', 'Данные не найдены!'))
 
     # заполняем таблицу данными по колонкам(нельзя редактировать)
     def fill_table(self, info):

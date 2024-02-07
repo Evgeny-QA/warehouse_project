@@ -8,6 +8,7 @@ from functools import partial
 class Ui_Orders_History(object):
     def __init__(self, user):
         self.current_user = user
+        self.flag = False
 
     def setupUi(self, Orders_History):
         Orders_History.setObjectName("Orders_History")
@@ -19,6 +20,8 @@ class Ui_Orders_History(object):
         self.lineEdit.setGeometry(QtCore.QRect(370, 20, 200, 30))
         self.lineEdit.setFrame(False)
         self.lineEdit.setObjectName("lineEdit")
+
+        self.tableWidget_table_history.horizontalHeader().sectionClicked.connect(self.sort_table)
 
         self.retranslateUi(Orders_History)
         QtCore.QMetaObject.connectSlotsByName(Orders_History)
@@ -34,6 +37,15 @@ class Ui_Orders_History(object):
         Orders_History.setWindowTitle(_translate("Orders_History", "История заказов"))
         self.lineEdit.setPlaceholderText(_translate("Orders_History", "Поиск..."))
         self.lineEdit.returnPressed.connect(self.fill_table)
+
+    # сортировака по столбикам
+    def sort_table(self, column):
+        if not self.flag or self.tableWidget_table_history.horizontalHeader().sortIndicatorSection() != column:
+            self.tableWidget_table_history.sortItems(column, QtCore.Qt.AscendingOrder)
+            self.flag = True
+        else:
+            self.tableWidget_table_history.sortItems(column, QtCore.Qt.DescendingOrder)
+            self.flag = False
 
     def open_window_goods_info(self, order_id):
         self.window_order_info = QWidget()
@@ -60,11 +72,19 @@ class Ui_Orders_History(object):
 
     def fill_table(self, order_id=None):
         if order_id is None:
-            search_text = self.lineEdit.text()
-            info = DataBase().get_completed_orders(search_text)
-            if len(info) == 0:
-                QtWidgets.QMessageBox.information(self.tableWidget_table_history, 'Ошибка поиска', 'Данные не найдены!')
-                return
+            search_text = self.lineEdit.text().lower()
+            info_for_search = DataBase().get_completed_orders()
+
+            if search_text:
+                info = []
+                for i in info_for_search:
+                    if i[2].lower() == search_text or search_text in i[2].lower() or search_text in i[1].lower():
+                        info.append(i)
+                if len(info) == 0:
+                    QtWidgets.QMessageBox.information(self.tableWidget_table_history, 'Ошибка поиска', 'Данные не найдены!')
+                    return
+            else:
+                info = info_for_search
             self.tableWidget_table_history.setRowCount(len(info))
             for row, str_info in enumerate(info):
                 len_str = len(str_info)

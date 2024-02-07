@@ -104,6 +104,11 @@ class Ui_Client_data(object):
         self.client = client_data
         self.address = address_data
         goods = [[int(i[0]), int(i[1])] for i in self.goods_in_order]
+        print(self.current_user, self.client, self.address, goods)
+        QtWidgets.QMessageBox.information(self.layoutWidget, 'Информация', 'Заказ принят!')
+        self.lineEdit_client.clear()
+        self.lineEdit_address.clear()
+        self.cart_class.clear_cart()
         DataBase().add_new_order_into_bd_orders_and_good_in_orders(self.current_user, self.client, self.address, goods)
 
     def get_companies_list(self):

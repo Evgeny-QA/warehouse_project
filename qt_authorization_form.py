@@ -38,3 +38,4 @@ class Ui_Authorize_form(object):
         schedule = DataBase().create_db_for_old_orders()
         if schedule[0]:
             DataBase().tranfer_old_orders_into_archive_db_and_delete(schedule[1:])
+

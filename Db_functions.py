@@ -258,12 +258,14 @@ class DataBase:
             with self.db:
                 cursor = self.db.cursor()
                 if search_text not in (None, ""):
-                    cursor.execute('''SELECT O.id, login, company_name, delivery_address, file_word, file_excel
+                    cursor.execute('''SELECT O.id, login, company_name, delivery_address, date_of_completion, 
+                                             file_word, file_excel
                                       FROM Users U JOIN Orders O ON U.id = O.user_id JOIN Companies C ON 
                                                         O.company_id = C.id
                                       WHERE LOWER(company_name) LIKE LOWER(?)''', [f"%{search_text}%"])
                 else:
-                    cursor.execute('''SELECT O.id, login, company_name, delivery_address, file_word, file_excel
+                    cursor.execute('''SELECT O.id, login, company_name, delivery_address, date_of_completion, 
+                                             file_word, file_excel
                                       FROM Users U JOIN Orders O ON U.id = O.user_id JOIN Companies C ON 
                                                         O.company_id = C.id''')
                 info = cursor.fetchall()
@@ -307,10 +309,10 @@ class DataBase:
                 table_exists = cursor.fetchone()
                 if table_exists:
                     print("Таблица существует, перенос не требуется")
-                    is_table_real = False
+                    is_table_real = [False]
                 else:
                     print("Таблица не существует и будет создана")
-                    is_table_real = True
+                    is_table_real = [True, table_name_orders, table_name_goods]
 
                 '''Создание таблиц'''
                 cursor.execute(f"""
@@ -319,6 +321,7 @@ class DataBase:
                     login TEXT,
                     company_name TEXT,
                     delivery_address TEXT,
+                    date_of_completion TEXT,
                     file_word TEXT,
                     file_excel TEXT,
                     FOREIGN KEY (id) REFERENCES {table_name_goods} (id)
@@ -330,48 +333,41 @@ class DataBase:
                     measure_unit TEXT,
                     amount INTEGER
                 )""")
-
             return is_table_real
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False
 
-    def tranfer_old_orders_into_archive_db(self):
+    def tranfer_old_orders_into_archive_db_and_delete(self, table_names):
         """Создание таблиц для архивации"""
         try:
-            with sql.connect('Orders_history.db') as db:
-                cursor = db.cursor()
-                current_date = datetime.now()
-                table_name_orders = f"Orders_{current_date.strftime('%B')}_{current_date.year}"
-                table_name_goods = f"Goods_in_order_{current_date.strftime('%B')}_{current_date.year}"
-                print(table_name_orders, table_name_goods)
+            with sql.connect('Warehouses_db.db') as db, sql.connect('Orders_history.db') as db1:
+                cursor_warehouse = db.cursor()
+                cursor_orders_history = db1.cursor()
 
-                '''Создание таблиц'''
-                cursor.execute(f"""
-                CREATE TABLE IF NOT EXISTS {table_name_orders}(
-                    id INTEGER,
-                    login TEXT,
-                    company_name TEXT,
-                    delivery_address TEXT,
-                    file_word TEXT,
-                    file_excel TEXT,
-                    FOREIGN KEY (id) REFERENCES {table_name_goods} (id)
-                )""")
-                cursor.execute(f"""
-                    CREATE TABLE IF NOT EXISTS {table_name_goods}(
-                    id INTEGER,
-                    good_name INTEGER,
-                    measure_unit TEXT,
-                    amount INTEGER
-                )""")
+                '''Перенос заказов и удаление из основной таблицы'''
+                orders = DataBase().get_completed_orders()
+                cursor_orders_history.executemany(f'''INSERT INTO {table_names[0]} (id, login, company_name, 
+                                                            delivery_address, date_of_completion, file_word, file_excel)
+                                                      VALUES (?, ?, ?, ?, ?, ?, ?)''', orders)
+                cursor_warehouse.execute('''DELETE FROM Orders''')
+
+                '''Перенос товаров заказа и удаление из основной таблицы'''
+                cursor_warehouse.execute(f'''SELECT order_id, good_name, measure_unit, GO.amount
+                                             FROM Goods_in_order GO JOIN Goods G ON GO.good_id = G.article_number''')
+                goods = cursor_warehouse.fetchall()
+                cursor_orders_history.executemany(f'''INSERT INTO {table_names[1]} (id, good_name, measure_unit, amount)
+                                                      VALUES (?, ?, ?, ?)''', goods)
+                cursor_warehouse.execute('''DELETE FROM Goods_in_order''')
+
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False
 
-# DataBase().get_completed_orders()
+#DataBase().tranfer_old_orders_into_archive_db(["Orders_February_2024", "Goods_in_order_February_2024"])
 
 
-    '''ДЛЯ ОЛЕГА СОЗДАНИЕ word/excel'''
+    #'''ДЛЯ ОЛЕГА СОЗДАНИЕ word/excel'''
     # '''cart'''
     # def create_order_documets(self, ):
     #     """Удаление пользователя

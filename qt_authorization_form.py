@@ -35,5 +35,6 @@ class Ui_Authorize_form(object):
         self.lineEdit_password.setPlaceholderText(_translate("Authorize_form", "Введите пароль"))
         self.btn_enter.setText(_translate("Authorize_form", "Войти"))
 
-        if DataBase().create_db_for_old_orders():
-            DataBase().tranfer_old_orders_into_archive_db()
+        schedule = DataBase().create_db_for_old_orders()
+        if schedule[0]:
+            DataBase().tranfer_old_orders_into_archive_db_and_delete(schedule[1:])

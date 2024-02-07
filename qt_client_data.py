@@ -104,12 +104,10 @@ class Ui_Client_data(object):
         self.client = client_data
         self.address = address_data
         goods = [[int(i[0]), int(i[1])] for i in self.goods_in_order]
-        print(self.current_user, self.client, self.address, goods)
         QtWidgets.QMessageBox.information(self.layoutWidget, 'Информация', 'Заказ принят!')
-        self.lineEdit_client.clear()
-        self.lineEdit_address.clear()
         self.cart_class.clear_cart()
         DataBase().add_new_order_into_bd_orders_and_good_in_orders(self.current_user, self.client, self.address, goods)
+        self.close_window()
 
     def get_companies_list(self):
         self.comboBox_client.clear()
@@ -136,7 +134,7 @@ class Ui_Client_data(object):
             self.lineEdit_client.setText(self.client)
             self.lineEdit_client.setEnabled(False)
 
-    # получаем введенные или выбранные данные Клиента и Адреса
+    # получаем введенные или выбранные данные Адреса
     def combo_box_address(self, index_address):
         if index_address == 0:
             self.lineEdit_address.clear()

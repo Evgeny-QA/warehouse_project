@@ -114,6 +114,8 @@ class Ui_Cart(object):
 
     # отображаем окно Сделать заказ при закрытии Корзины
     def close_window(self, event):
+        self.make_order_class.get_info_from_db()
+        self.make_order_class.show_data()
         self.make_order_class.current_window.show()
         event.accept()
 

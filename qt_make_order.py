@@ -135,20 +135,23 @@ class Ui_make_order(object):
     def add_to_cart(self):
         quantity = self.lineEdit_quantity.text()
         if not quantity.isdigit() or quantity.startswith('0') or quantity.strip() == '':
-            return QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Некорректное количество товара!')
-
-        selected_field = self.table_make_order.selectedRanges()[-1]
-        if selected_field:
-            selected_field = selected_field.bottomRow() + 1
-        if not selected_field:
-            return QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Выберите товар!')
+            QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Некорректное количество товара!')
+            return
+        try:
+            selected_field = self.table_make_order.selectedRanges()[-1]
+            if selected_field:
+                selected_field = selected_field.bottomRow() + 1
+        except:
+            QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Выберите товар!')
+            return
 
         article = self.table_make_order.item(selected_field - 1, 7).text()
         self.cursor.execute("SELECT amount FROM Goods WHERE article_number = ?", [article])
         good_quantity = self.cursor.fetchone()[0]
 
         if float(quantity) > float(good_quantity):
-            return QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Недопустимое количество товара!')
+            QtWidgets.QMessageBox.warning(self.table_make_order, 'Ошибка', 'Недопустимое количество товара!')
+            return
 
         article = self.table_make_order.item(selected_field - 1, 7).text()
         self.goods_in_cart.append([article, quantity])

@@ -15,10 +15,30 @@ class Ui_Orders_History(object):
         self.tableWidget_table_history = QtWidgets.QTableWidget(Orders_History)
         self.tableWidget_table_history.setGeometry(QtCore.QRect(20, 60, 560, 240))
         self.tableWidget_table_history.setObjectName("tableWidget_table_history")
+        self.comboBox = QtWidgets.QComboBox(Orders_History)
+        self.comboBox.setGeometry(QtCore.QRect(20, 30, 91, 21))
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox_2 = QtWidgets.QComboBox(Orders_History)
+        self.comboBox_2.setGeometry(QtCore.QRect(120, 30, 91, 21))
+        self.comboBox_2.setObjectName("comboBox_2")
         self.lineEdit = QtWidgets.QLineEdit(Orders_History)
         self.lineEdit.setGeometry(QtCore.QRect(370, 20, 200, 30))
         self.lineEdit.setFrame(False)
         self.lineEdit.setObjectName("lineEdit")
+        self.label = QtWidgets.QLabel(Orders_History)
+        self.label.setGeometry(QtCore.QRect(20, 10, 91, 16))
+        self.label.setObjectName("label")
+        self.label_2 = QtWidgets.QLabel(Orders_History)
+        self.label_2.setGeometry(QtCore.QRect(120, 10, 91, 16))
+        self.lineEdit_2 = QtWidgets.QLineEdit(Orders_History)
+        self.lineEdit_2.setGeometry(QtCore.QRect(220, 30, 41, 20))
+        self.lineEdit_2.setObjectName("lineEdit")
+        self.label_3 = QtWidgets.QLabel(Orders_History)
+        self.label_3.setGeometry(QtCore.QRect(230, 10, 71, 16))
+        self.label_3.setObjectName("label_3")
+        self.pushButton = QtWidgets.QPushButton(Orders_History)
+        self.pushButton.setGeometry(QtCore.QRect(280, 20, 75, 31))
+        self.pushButton.setObjectName("pushButton")
 
         self.retranslateUi(Orders_History)
         QtCore.QMetaObject.connectSlotsByName(Orders_History)
@@ -33,7 +53,21 @@ class Ui_Orders_History(object):
         _translate = QtCore.QCoreApplication.translate
         Orders_History.setWindowTitle(_translate("Orders_History", "История заказов"))
         self.lineEdit.setPlaceholderText(_translate("Orders_History", "Поиск..."))
+        self.lineEdit_2.setPlaceholderText(_translate("Orders_History", "20__"))
+        self.label.setText(_translate("old_orders", "Начальный месяц"))
+        self.label_2.setText(_translate("old_orders", "Конечный месяц"))
+        self.label_3.setText(_translate("old_orders", "Год"))
+        self.pushButton.setText(_translate("old_orders", "Показать"))
+
+        self.pushButton.clicked.connect(self.click)
         self.lineEdit.returnPressed.connect(self.fill_table)
+        self.comboBox.addItems(['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                                'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'])
+        self.comboBox_2.addItems(['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                                  'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'])
+
+    def click(self):
+        print(self.comboBox.currentText())
 
     def open_window_goods_info(self, order_id):
         self.window_order_info = QWidget()
@@ -47,7 +81,7 @@ class Ui_Orders_History(object):
         self.window_order_info.show()
         self.window_order_info.setWindowTitle(QtCore.QCoreApplication.translate("window_order_info", "Товары заказа"))
 
-        table_collums = ["Название", "ед. изм.", "Количество"]
+        table_collums = ["Название", "Ед. изм.", "Количество"]
         self.tableWidget1.setColumnCount(len(table_collums))
         self.tableWidget1.setHorizontalHeaderLabels(table_collums)
         self.fill_table(order_id)
@@ -92,3 +126,10 @@ class Ui_Orders_History(object):
                 for coll, info_insert in enumerate(str_info):
                     self.tableWidget1.setItem(row, coll, QtWidgets.QTableWidgetItem(str(info_insert)))
 
+    def open_window(self, window):
+        self.current_window = QtWidgets.QApplication.activeWindow()
+        self.main_window = QtWidgets.QMainWindow()
+        self.ui = window
+        self.ui.setupUi(self.main_window)
+        self.main_window.show()
+        self.current_window.hide()

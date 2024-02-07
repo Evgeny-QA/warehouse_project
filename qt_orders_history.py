@@ -1,3 +1,5 @@
+import datetime
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from Db_functions import DataBase
 from PyQt5.QtWidgets import QPushButton, QWidget
@@ -56,21 +58,22 @@ class Ui_Orders_History(object):
         _translate = QtCore.QCoreApplication.translate
         Orders_History.setWindowTitle(_translate("Orders_History", "История заказов"))
         self.lineEdit.setPlaceholderText(_translate("Orders_History", "Поиск..."))
-        self.lineEdit_2.setPlaceholderText(_translate("Orders_History", "20__"))
         self.label.setText(_translate("old_orders", "Начальный месяц"))
         self.label_2.setText(_translate("old_orders", "Конечный месяц"))
         self.label_3.setText(_translate("old_orders", "Год"))
         self.pushButton.setText(_translate("old_orders", "Показать"))
-
-        self.pushButton.clicked.connect(self.click)
+        self.lineEdit_2.setText(str(datetime.datetime.now().year))
+        self.pushButton.clicked.connect(partial(self.fill_table, old_orders=True))
         self.lineEdit.returnPressed.connect(self.fill_table)
-        self.comboBox.addItems(['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
-                                'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'])
-        self.comboBox_2.addItems(['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
-                                  'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'])
-
-    def click(self):
-        print(self.comboBox.currentText())
+        global months
+        months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                  'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+        self.comboBox.addItems(months)
+        self.comboBox_2.addItems(months)
+        self.comboBox.currentTextChanged.connect(self.change_months)
+    def change_months(self):
+        self.comboBox_2.clear()
+        self.comboBox_2.addItems(months[months.index(self.comboBox.currentText()):])
 
     # сортировака по столбикам
     def sort_table(self, column):
@@ -81,7 +84,7 @@ class Ui_Orders_History(object):
             self.tableWidget_table_history.sortItems(column, QtCore.Qt.DescendingOrder)
             self.flag = False
 
-    def open_window_goods_info(self, order_id):
+    def open_window_goods_info(self, order_id, old_orders=None):
         self.window_order_info = QWidget()
         self.window_order_info.setWindowTitle('Новое окно')
         self.window_order_info.setObjectName("Admin_panel")
@@ -96,7 +99,7 @@ class Ui_Orders_History(object):
         table_collums = ["Название", "Ед. изм.", "Количество"]
         self.tableWidget1.setColumnCount(len(table_collums))
         self.tableWidget1.setHorizontalHeaderLabels(table_collums)
-        self.fill_table(order_id)
+        self.fill_table(order_id, old_orders)
 
     def input_file_button(self, row, coll, file_text, file_path):
         button = QPushButton()
@@ -104,10 +107,15 @@ class Ui_Orders_History(object):
         button.clicked.connect(partial(startfile, file_path))
         self.tableWidget_table_history.setCellWidget(row, coll, button)
 
-    def fill_table(self, order_id=None):
-        if order_id is None:
+    def fill_table(self, order_id=None, old_orders=None):
+        if order_id in (None, False):
             search_text = self.lineEdit.text().lower()
-            info_for_search = DataBase().get_completed_orders()
+
+            if old_orders is None:
+                info_for_search = DataBase().get_completed_orders()
+            else:
+                between = months[months.index(self.comboBox.currentText()):months.index(self.comboBox_2.currentText()) + 1]
+                info_for_search = DataBase().get_old_orders(between, self.lineEdit_2.text())
 
             if search_text:
                 info = []
@@ -127,17 +135,28 @@ class Ui_Orders_History(object):
                     if not order_id:
                         order_id = info_insert
                     if coll == len_str - 2:
-                        self.input_file_button(row, coll, "Word", info_insert)
+                        if info_insert is not None:
+                            self.input_file_button(row, coll, "Word", info_insert)
+                        else:
+                            self.tableWidget_table_history.setItem(row, coll, QtWidgets.QTableWidgetItem("-"))
                     elif coll == len_str - 1:
-                        self.input_file_button(row, coll, "Excel", info_insert)
+                        if info_insert is not None:
+                            self.input_file_button(row, coll, "Excel", info_insert)
+                        else:
+                            self.tableWidget_table_history.setItem(row, coll, QtWidgets.QTableWidgetItem("-"))
                         button = QPushButton()
                         button.setText("Посмотреть")
-                        button.clicked.connect(partial(self.open_window_goods_info, order_id))
+                        button.clicked.connect(partial(self.open_window_goods_info, order_id, old_orders))
                         self.tableWidget_table_history.setCellWidget(row, coll + 1, button)
                     else:
                         self.tableWidget_table_history.setItem(row, coll, QtWidgets.QTableWidgetItem(str(info_insert)))
         else:
-            info = DataBase().get_goods_info_from_order(order_id)
+            if old_orders is None:
+                info = DataBase().get_goods_info_from_order(order_id)
+            else:
+                between = months[months.index(self.comboBox.currentText()):months.index(self.comboBox_2.currentText()) + 1]
+                info = DataBase().get_goods_info_from_old_orders(between, self.lineEdit_2.text(), order_id)
+
             if len(info) == 0:
                 QtWidgets.QMessageBox.information(self.tableWidget1, 'Ошибка поиска', 'Данные не найдены!')
                 return

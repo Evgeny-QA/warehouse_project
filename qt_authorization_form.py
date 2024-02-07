@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from Db_functions import DataBase
 
 class Ui_Authorize_form(object):
     def setupUi(self, Authorize_form):
@@ -34,3 +34,6 @@ class Ui_Authorize_form(object):
         self.lineEdit_login.setPlaceholderText(_translate("Authorize_form", "Введите логин"))
         self.lineEdit_password.setPlaceholderText(_translate("Authorize_form", "Введите пароль"))
         self.btn_enter.setText(_translate("Authorize_form", "Войти"))
+
+        if DataBase().create_db_for_old_orders():
+            DataBase().tranfer_old_orders_into_archive_db()

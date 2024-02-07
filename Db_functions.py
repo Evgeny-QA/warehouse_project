@@ -1,5 +1,5 @@
 import sqlite3 as sql
-from datetime import date
+from datetime import date, datetime
 
 class DataBase:
     def __init__(self):
@@ -212,7 +212,8 @@ class DataBase:
     def add_new_order_into_bd_orders_and_good_in_orders(self, user_id, company_name, delivery_address, cart):
         """Формирование заказа в бд
         :param user_id - id логина пользователя, company_name - название компании,
-               delivery_address - адрес компании/доставки, cart - список списков товаров [[article_id, amount]...]
+               delivery_address - адрес компании/доставки,
+               cart - список списков товаров [[article_id (int), amount (int)]...]
         :return: """
         try:
             with self.db:
@@ -287,8 +288,85 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
+    '''qt_authorization_form - schedule'''
+    def create_db_for_old_orders(self):
+        """Создание таблиц для архивации
+        :return: True - таблицы созданы, False - таблицы не созданы"""
+        try:
+            with sql.connect('Orders_history.db') as db:
+                cursor = db.cursor()
+                current_date = datetime.now()
+                table_name_orders = f"Orders_{current_date.strftime('%B')}_{current_date.year}"
+                table_name_goods = f"Goods_in_order_{current_date.strftime('%B')}_{current_date.year}"
+                print(table_name_orders, table_name_goods)
 
+                '''Есть ли таблица в базе'''
+                cursor.execute("""SELECT name 
+                                  FROM sqlite_master 
+                                  WHERE type='table' AND name= ?""", [table_name_orders])
+                table_exists = cursor.fetchone()
+                if table_exists:
+                    print("Таблица существует, перенос не требуется")
+                    is_table_real = False
+                else:
+                    print("Таблица не существует и будет создана")
+                    is_table_real = True
 
+                '''Создание таблиц'''
+                cursor.execute(f"""
+                CREATE TABLE IF NOT EXISTS {table_name_orders}(
+                    id INTEGER,
+                    login TEXT,
+                    company_name TEXT,
+                    delivery_address TEXT,
+                    file_word TEXT,
+                    file_excel TEXT,
+                    FOREIGN KEY (id) REFERENCES {table_name_goods} (id)
+                )""")
+                cursor.execute(f"""
+                    CREATE TABLE IF NOT EXISTS {table_name_goods}(
+                    id INTEGER,
+                    good_name INTEGER,
+                    measure_unit TEXT,
+                    amount INTEGER
+                )""")
+
+            return is_table_real
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
+    def tranfer_old_orders_into_archive_db(self):
+        """Создание таблиц для архивации"""
+        try:
+            with sql.connect('Orders_history.db') as db:
+                cursor = db.cursor()
+                current_date = datetime.now()
+                table_name_orders = f"Orders_{current_date.strftime('%B')}_{current_date.year}"
+                table_name_goods = f"Goods_in_order_{current_date.strftime('%B')}_{current_date.year}"
+                print(table_name_orders, table_name_goods)
+
+                '''Создание таблиц'''
+                cursor.execute(f"""
+                CREATE TABLE IF NOT EXISTS {table_name_orders}(
+                    id INTEGER,
+                    login TEXT,
+                    company_name TEXT,
+                    delivery_address TEXT,
+                    file_word TEXT,
+                    file_excel TEXT,
+                    FOREIGN KEY (id) REFERENCES {table_name_goods} (id)
+                )""")
+                cursor.execute(f"""
+                    CREATE TABLE IF NOT EXISTS {table_name_goods}(
+                    id INTEGER,
+                    good_name INTEGER,
+                    measure_unit TEXT,
+                    amount INTEGER
+                )""")
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
 
 # DataBase().get_completed_orders()
 

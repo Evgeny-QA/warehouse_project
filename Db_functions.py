@@ -218,10 +218,13 @@ class DataBase:
         try:
             with self.db:
                 cursor = self.db.cursor()
-                cursor.execute('''SELECT C.id
-                                  FROM Orders O JOIN Companies C ON O.company_id = C.id
+                cursor.execute('''SELECT id
+                                  FROM Companies
                                   WHERE company_name = ?''', [company_name])
-                company_id = cursor.fetchone()[0]
+                company_id = cursor.fetchone()
+                if company_id is not None:
+                    company_id = company_id[0]
+
                 if company_id is None:
                     cursor.execute('''INSERT INTO Companies(company_name, company_address)
                                       VALUES (?, ?)''', [company_name, delivery_address])

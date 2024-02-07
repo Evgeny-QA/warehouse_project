@@ -167,6 +167,7 @@ class Ui_make_order(object):
             self.cursor.execute(f"UPDATE Goods SET amount = ? WHERE article_number = ?",
                                 [first_quantity - quantity_for_delete, good_article])
             self.db.commit()
+            self.get_info_from_db()
             self.show_data()
 
         except Exception as e:

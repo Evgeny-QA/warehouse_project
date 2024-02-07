@@ -149,10 +149,12 @@ class Ui_Client_data(object):
     def close_window(self, event=None):
         self.client = None
         self.address = None
-        self.cart_class.current_window.show()
+        self.cart_class.current_window.close()
+        # self.cart_class.current_window.show() # показать корзину(но кнопки будут заблокированы, т.к. она пустая)
         if not event:
             QtWidgets.QApplication.activeWindow().close()
         else:
-            self.cart_class.current_window.show()
+            self.cart_class.current_window.close()
+            # self.cart_class.current_window.show()  # показать корзину(но кнопки будут заблокированы, т.к. она пустая)
             event.accept()
 

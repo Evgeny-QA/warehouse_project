@@ -126,12 +126,11 @@ class Ui_Cart(object):
         self.block_btns()
 
     # отображаем окно Сделать заказ при закрытии Корзины
-    def close_window(self, event=None):
+    def close_window(self, event):
         self.make_order_class.get_info_from_db()
         self.make_order_class.show_data()
         self.make_order_class.current_window.show()
-        if event:
-            event.accept()
+        return event.accept()
 
     # возвращаем товары в БД в случае нажатия "очистить корзину"
     def delete_from_cart(self):

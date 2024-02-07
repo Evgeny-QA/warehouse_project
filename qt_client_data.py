@@ -149,7 +149,6 @@ class Ui_Client_data(object):
     def close_window(self, event=None):
         self.client = None
         self.address = None
-        self.cart_class.current_window.close()
         if not event:
             QtWidgets.QApplication.activeWindow().close()
         else:

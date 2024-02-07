@@ -109,6 +109,7 @@ class Ui_Cart(object):
         self.make_order_class.btn_cart.setText('Корзина')
         self.make_order_class.goods_in_cart = []
         self.make_order_class.cart_count = 0
+        self.make_order_class.get_info_from_db()
         self.make_order_class.show_data()
 
     # отображаем окно Сделать заказ при закрытии Корзины

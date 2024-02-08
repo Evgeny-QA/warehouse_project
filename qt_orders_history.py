@@ -11,6 +11,7 @@ class Ui_Orders_History(object):
     def __init__(self, user):
         self.current_user = user
         self.flag = False
+        self.flag_search = False
 
     def setupUi(self, Orders_History):
         Orders_History.setObjectName("Orders_History")
@@ -53,6 +54,8 @@ class Ui_Orders_History(object):
         self.tableWidget_table_history.setColumnCount(len(table_collums))
         self.tableWidget_table_history.setHorizontalHeaderLabels(table_collums)
         self.fill_table()
+        if self.flag_search is not False:
+            self.flag_search = False
 
     def retranslateUi(self, Orders_History):
         _translate = QtCore.QCoreApplication.translate
@@ -64,7 +67,8 @@ class Ui_Orders_History(object):
         self.pushButton.setText(_translate("old_orders", "Показать"))
         self.lineEdit_2.setText(str(datetime.datetime.now().year))
         self.pushButton.clicked.connect(partial(self.fill_table, old_orders=True))
-        self.lineEdit.returnPressed.connect(self.fill_table)
+        self.lineEdit.returnPressed.connect(self.search)
+
         global months
         months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
                   'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
@@ -74,6 +78,12 @@ class Ui_Orders_History(object):
     def change_months(self):
         self.comboBox_2.clear()
         self.comboBox_2.addItems(months[months.index(self.comboBox.currentText()):])
+
+    def search(self):
+        if self.flag_search:
+            self.fill_table(old_orders=True)
+        else:
+            self.fill_table()
 
     # сортировака по столбикам
     def sort_table(self, column):
@@ -109,6 +119,8 @@ class Ui_Orders_History(object):
 
     def fill_table(self, order_id=None, old_orders=None):
         if order_id in (None, False):
+            if old_orders:
+                self.flag_search = True
             search_text = self.lineEdit.text().lower()
 
             if old_orders is None:

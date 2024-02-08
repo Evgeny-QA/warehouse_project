@@ -326,17 +326,20 @@ class DataBase:
                       "Май": "May", "Июнь": "June", "Июль": "July", "Август": "August", "Сентябрь": "September",
                       "Октябрь": "October", "Ноябрь": "November", "Декабрь": "December"}
             tables_order_info = []
-
             tables_orders_names = [f"Orders_{months[name]}_{year}" for name in between]
-            print(tables_orders_names)
 
             with self.db1:
                 cursor = self.db1.cursor()
-                for name in tables_orders_names:
-                    cursor.execute(f'''SELECT *
-                                       FROM {name}''')
-                    info = cursor.fetchall()
-                    tables_order_info += info
+                cursor.execute("""SELECT name 
+                                  FROM sqlite_master 
+                                  WHERE type='table'""")
+                all_exist_tables = cursor.fetchone()
+                for table in tables_orders_names:
+                    if table in all_exist_tables:
+                        cursor.execute(f'''SELECT *
+                                           FROM {table}''')
+                        info = cursor.fetchall()
+                        tables_order_info += info
                 return tables_order_info
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")

@@ -1,5 +1,6 @@
 import sqlite3 as sql
 from datetime import date, datetime
+from Documents.create_documents import description_good
 
 class DataBase:
     def __init__(self):
@@ -190,21 +191,6 @@ class DataBase:
                 cursor = self.db.cursor()
                 cursor.execute('''DELETE FROM Users 
                                   WHERE id = ?''', [user_id])
-        except sql.Error as error:
-            print(f"Произошла ошибка: {error}")
-            return False
-
-    '''schedule_delete_goods'''
-    def delete_after_time_good_end(self):
-        """Удаление товара со склада после окончания срока годности
-        :return: Возвращает пароль, если пароль не верный"""
-        try:
-            with self.db:
-                cursor = self.db.cursor()
-                cursor.execute('''DELETE FROM Goods
-                                  WHERE time_to_end IS NOT NULL 
-                                  AND Cast ((JulianDay('now') - JulianDay(time_to_end)) as Integer) >= 0''')
-                print("Delete done:" + str(date.today()))
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False
@@ -419,26 +405,27 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-#DataBase().tranfer_old_orders_into_archive_db(["Orders_February_2024", "Goods_in_order_February_2024"])
+    def delete_after_time_good_ends(self):
+        """Удаление товара со склада после окончания срока годности
+        :return: Возвращает пароль, если пароль не верный"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''SELECT article_number, good_name, warehouse_address, time_to_end, 
+                                         measure_unit, description, amount, price 
+                                  FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id 
+                                  WHERE time_to_end IS NOT NULL 
+                                        AND Cast((JulianDay('now') - JulianDay(time_to_end)) as Integer) >= 0''')
+                goods_for_deleting = cursor.fetchall()
 
-
-    #'''ДЛЯ ОЛЕГА СОЗДАНИЕ word/excel'''
-    # '''cart'''
-    # def create_order_documets(self, ):
-    #     """Удаление пользователя
-    #     :param """
-    #     try:
-    #         with self.db:
-    #             cursor = self.db.cursor()
-    #             cursor.execute('''DELETE FROM Users
-    #                                       WHERE id = ?''', [user_id])
-    #     except sql.Error as error:
-    #         print(f"Произошла ошибка: {error}")
-    #         return False
-
-# DataBase().add_new_user(0,0)
-# DataBase().delete_good(222)
-# DataBase().add_new_good_into_db(["Запчасть плюс", "Продуктыыыы", "1", 1, "1", 1, "1", "1", "1", "1"])
-
-user = "ф"
-# DataBase().add_new_order_into_bd_orders_and_good_in_orders(user, "sdfgsgdsgsdgsg", "73265863528")
+                for id, name, address, time_to_end, measure_unit, description, amount, price in goods_for_deleting:
+                    list_description = {'article_number': str(id), 'good_name': name, 'address_description': address,
+                                        'date_description': time_to_end, 'measure_unit': measure_unit,
+                                        'description': description, 'amount': str(amount), 'price': str(price)}
+                    description_good(list_description, path="Documents//")
+                    cursor.execute('''DELETE FROM Goods
+                                      WHERE article_number = ?''', [id])
+                print(f"Delete done: {date.today()}")
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False

@@ -1,8 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
 from Db_functions import DataBase
-from Documents.create_documents import files_sell
-from datetime import datetime
 
 
 class Ui_Client_data(object):
@@ -13,8 +11,8 @@ class Ui_Client_data(object):
         self.current_user = user
         self.goods_in_order = goods_in_cart
         self.price = all_price
-        # self.client = None
-        # self.address = None
+        self.client = None
+        self.address = None
 
     def setupUi(self, Client_data):
         Client_data.setObjectName("Client_data_and_address")
@@ -103,39 +101,12 @@ class Ui_Client_data(object):
             QtWidgets.QMessageBox.information(self.layoutWidget, 'Ошибка', 'Введите адрес!')
             return
 
-        # self.client = client_data
-        # self.address = address_data
-
+        self.client = client_data
+        self.address = address_data
         goods = [[int(i[0]), int(i[1])] for i in self.goods_in_order]
-
-        info_for_list = []
-        for good in goods:
-            self.cursor.execute(f"""SELECT warehouse_id, good_name, measure_unit, description 
-            FROM Goods WHERE article_number= ?""", [good[0]])
-            info_for_list.append(list(self.cursor.fetchone()))
-
-        goods_list_sell = [elem + good for elem, good in zip(info_for_list, goods)]
-        current_date = datetime.now().strftime("%d.%m.%Y %H:%M")
-
-        list_sell = {'article_number': [i[-2] for i in goods_list_sell],
-                     'good_name': [i[1] for i in goods_list_sell],
-                     'warehouse_address': [i[0] for i in goods_list_sell],
-                     'delivery_address': address_data,
-                     'date': current_date,
-                     'measure_unit': [i[2] for i in goods_list_sell],
-                     'description': [i[3] for i in goods_list_sell],
-                     'amount': [i[-1] for i in goods_list_sell],
-                     'price_sell': self.price}
-
-        print(list_sell)
-
         QtWidgets.QMessageBox.information(self.layoutWidget, 'Информация', 'Заказ принят!')
         self.cart_class.clear_cart()
-        files_sell(list_sell)
-        # if self.radioButton_Yes:
-        #     files_sell(list_sell)
         DataBase().add_new_order_into_bd_orders_and_good_in_orders(self.current_user, self.client, self.address, goods)
-
         self.close_window()
 
     def get_companies_list(self):
@@ -175,11 +146,10 @@ class Ui_Client_data(object):
 
     # отображаем корзину при закрытии текущего окна
     def close_window(self, event=None):
-        # self.client = None
-        # self.address = None
+        self.client = None
+        self.address = None
         if not event:
             QtWidgets.QApplication.activeWindow().close()
         else:
             self.cart_class.current_window.show()
             event.accept()
-

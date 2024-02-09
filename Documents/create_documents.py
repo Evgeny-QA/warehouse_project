@@ -36,6 +36,7 @@ def files_sell(list_sell):
 
     return [os.path.abspath(doc_name), os.path.abspath(file_name)]
 
+
 # list_add = {'article_number': '1',
 #             'good_name': 'Труба',
 #             'address_purchase': 'Улица Интересная',

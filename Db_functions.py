@@ -209,7 +209,7 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-    def add_new_order_into_bd_orders_and_good_in_orders(self, user_id, company_name, delivery_address, cart):
+    def add_new_order_into_bd_orders_and_good_in_orders(self, user_id, company_name, delivery_address, cart, paths=['-', '-']):
         """Формирование заказа в бд
         :param user_id - id логина пользователя, company_name - название компании,
                delivery_address - адрес компании/доставки,
@@ -232,8 +232,8 @@ class DataBase:
                                       FROM Companies''')
                     company_id = cursor.fetchone()[0]
 
-                cursor.execute('''INSERT INTO Orders(user_id, company_id, delivery_address, date_of_completion)
-                                  VALUES (?, ?, ?, ?)''', [user_id, company_id, delivery_address, str(date.today())])
+                cursor.execute('''INSERT INTO Orders(user_id, company_id, delivery_address, date_of_completion, file_word, file_excel)
+                                  VALUES (?, ?, ?, ?, ?, ?)''', [user_id, company_id, delivery_address, str(date.today()), paths[0], paths[1]])
                 cursor.execute('''SELECT MAX(id)
                                   FROM Orders''')
                 order_id = cursor.fetchone()[0]

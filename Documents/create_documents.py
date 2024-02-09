@@ -22,20 +22,19 @@ list_sell = {'article_number': '1',
 
 def files_sell(list_sell):
     # # создание doxc файла
-    doc = DocxTemplate("blanksell.docx")
+    doc = DocxTemplate("Documents\\blanksell.docx")
     doc.render(list_sell)
     # doc_name = "продажа" + list_sell['good_name'] + ".docx"
-    doc_name = f"Продажа {list_sell['good_name']} {date.today()}.docx"
+    doc_name = f"Documents\\Продажа {list_sell['good_name']} {date.today()}.docx"
     doc.save(doc_name)
 
     # создание exel файла
     df = pd.DataFrame(data=list_sell, index=[0])
     df = (df.T)
-    file_name = f"Продажа {list_sell['good_name']} {date.today()}.xlsx"
+    file_name = f"Documents\\Продажа {list_sell['good_name']} {date.today()}.xlsx"
     df.to_excel(file_name)
 
     return [os.path.abspath(doc_name), os.path.abspath(file_name)]
-
 
 # list_add = {'article_number': '1',
 #             'good_name': 'Труба',

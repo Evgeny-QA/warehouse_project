@@ -115,7 +115,7 @@ class Ui_Client_data(object):
             info_for_list.append(list(self.cursor.fetchone()))
 
         goods_list_sell = [elem + good for elem, good in zip(info_for_list, goods)]
-        current_date = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        current_date = datetime.now().strftime("%d.%m.%Y %H:%M")
 
         list_sell = {'article_number': [i[-2] for i in goods_list_sell],
                      'good_name': [i[1] for i in goods_list_sell],
@@ -131,8 +131,9 @@ class Ui_Client_data(object):
 
         QtWidgets.QMessageBox.information(self.layoutWidget, 'Информация', 'Заказ принят!')
         self.cart_class.clear_cart()
-        if self.radioButton_Yes:
-            files_sell(list_sell)
+        files_sell(list_sell)
+        # if self.radioButton_Yes:
+        #     files_sell(list_sell)
         DataBase().add_new_order_into_bd_orders_and_good_in_orders(self.current_user, self.client, self.address, goods)
 
         self.close_window()

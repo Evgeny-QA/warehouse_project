@@ -159,6 +159,20 @@ class DataBase:
             return False
 
     '''qt_admin_panel'''
+    def get_all_users(self):
+        """Получение всей информации о пользователях
+        :return Возвращает список [login, password]"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''SELECT * 
+                                  FROM Users''')
+                info = cursor.fetchall()
+                return info
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
     def add_new_user(self, login, password):
         """Добавление пользователя
         :param login - логин нового пользователя, password - пароль нового пользователя"""
@@ -166,7 +180,7 @@ class DataBase:
             with self.db:
                 cursor = self.db.cursor()
                 cursor.execute('''INSERT INTO Users(login, password) 
-                                  VALUES(?,?)''', [login, password])
+                                  VALUES(?, ?)''', [login, password])
         except sql.Error as error:
             print(f"Произошла ошибка: {error}")
             return False

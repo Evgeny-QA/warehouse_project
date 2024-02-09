@@ -24,14 +24,14 @@ def files_sell(list_sell):
     # # создание doxc файла
     doc = DocxTemplate("Documents\\blanksell.docx")
     doc.render(list_sell)
-    # doc_name = "продажа" + list_sell['good_name'] + ".docx"
-    doc_name = f"Documents\\Продажа {list_sell['good_name']} {date.today()}.docx"
+    date = datetime.now().strftime("%d_%m_%Y %H_%M_%S")
+    doc_name = f"Documents\\Sale {date}.docx"
     doc.save(doc_name)
 
     # создание exel файла
     df = pd.DataFrame(data=list_sell, index=[0])
     df = (df.T)
-    file_name = f"Documents\\Продажа {list_sell['good_name']} {date.today()}.xlsx"
+    file_name = f"Documents\\Sale {date}.xlsx"
     df.to_excel(file_name)
 
     return [os.path.abspath(doc_name), os.path.abspath(file_name)]
@@ -47,6 +47,7 @@ def files_sell(list_sell):
 #             'amount': '2000',
 #             'sum_good': '20',
 #             'price': '257333'}
+
 
 def add_good(list_add):
     # создание doxc файла

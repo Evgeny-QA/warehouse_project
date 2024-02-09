@@ -1,45 +1,40 @@
 from docxtpl import DocxTemplate
 import openpyxl
 import openpyxl as op
-from datetime import date
+from datetime import date, datetime
 import subprocess, os, platform
 import xlsxwriter
 import pandas as pd
 import csv
+import os
 
-# list_sell = {'article_number': '1',
-#              'good_name': 'Труба',
-#              'warehouse_address': 'Улица Пушкина',
-#              'delivery_address': 'Улица Колотушкина',
-#              'date': '20.01.2023',
-#              'measure_unit': 'KG',
-#              'description': 'Описаниe',
-#              'amount': '2000',
-#              'price_sell': '257333'}
+
+list_sell = {'article_number': '1',
+             'good_name': 'Труба',
+             'warehouse_address': 'Улица Пушкина',
+             'delivery_address': 'Улица Колотушкина',
+             'date': '20.01.2023',
+             'measure_unit': 'KG',
+             'description': 'Описаниe',
+             'amount': '2000',
+             'price_sell': '257333'}
 
 
 def files_sell(list_sell):
-    # создание doxc файла
+    # # создание doxc файла
     doc = DocxTemplate("blanksell.docx")
     doc.render(list_sell)
-    doc_name = "продажа" + list_sell['good_name'] + ".docx"
+    # doc_name = "продажа" + list_sell['good_name'] + ".docx"
+    doc_name = f"Продажа {list_sell['good_name']} {date.today()}.docx"
     doc.save(doc_name)
 
     # создание exel файла
     df = pd.DataFrame(data=list_sell, index=[0])
     df = (df.T)
-    df.to_excel('продажа.xlsx')
+    file_name = f"Продажа {list_sell['good_name']} {date.today()}.xlsx"
+    df.to_excel(file_name)
 
-    # открытие файла docx
-    if platform.system() == 'Darwin':  # macOS
-        subprocess.call(('open', doc_name))
-    elif platform.system() == 'Windows':  # Windows
-        os.startfile(doc_name)
-    else:  # linux variants
-        subprocess.call(('xdg-open', doc_name))
-
-
-# files_sell(list_sell)
+    return [os.path.abspath(doc_name), os.path.abspath(file_name)]
 
 # list_add = {'article_number': '1',
 #             'good_name': 'Труба',

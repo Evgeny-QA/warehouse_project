@@ -1,6 +1,4 @@
 from docxtpl import DocxTemplate
-import openpyxl
-import openpyxl as op
 import datetime
 import subprocess, os, platform
 import xlsxwriter
@@ -17,6 +15,7 @@ list_sell = {'article_number':'1',
              'amount':'2000',
              'price_sell':'257333'}
 
+
 def files_sell(list_sell):
     # создание doxc файла
     doc = DocxTemplate("blanksell.docx")
@@ -26,19 +25,20 @@ def files_sell(list_sell):
 
     # создание exel файла
     df = pd.DataFrame(data = list_sell, index =[0])
-    df = (df.T)    
+    df = (df.T)
     df.to_excel('продажа.xlsx')
 
     # открытие файла docx
     if platform.system() == 'Darwin':       # macOS
         subprocess.call(('open', doc_name))
     elif platform.system() == 'Windows':    # Windows
-        os.startfile(doc_name)     
+        os.startfile(doc_name)
     else:                                   # linux variants
         subprocess.call(('xdg-open', doc_name))
 
+
 files_sell(list_sell)
-       
+
 list_add = {'article_number':'1',
              'good_name':'Труба',
              'address_purchase':'Улица Интересная',
@@ -60,19 +60,19 @@ def add_good(list_add):
 
     # создание exel файла
     df = pd.DataFrame(data = list_add, index =[0])
-    df = (df.T)    
+    df = (df.T)
     df.to_excel('добавление.xlsx')
 
     # открытие файла docx
     if platform.system() == 'Darwin':       # macOS
         subprocess.call(('open', doc_name))
     elif platform.system() == 'Windows':    # Windows
-        os.startfile(doc_name)     
+        os.startfile(doc_name)
     else:                                   # linux variants
         subprocess.call(('xdg-open', doc_name))
 
 add_good(list_add)
-        
+
 
 list_travel = {'article_number':'1',
              'good_name':'Труба',
@@ -84,7 +84,7 @@ list_travel = {'article_number':'1',
              'description':'Описаниe',
              'amount':'2000',
              'sum_good':'20'}
-     
+
 def travel_good(list_travel):
     # создание doxc файла
     doc = DocxTemplate("blanktravel.docx")
@@ -94,14 +94,14 @@ def travel_good(list_travel):
 
     # создание exel файла
     df = pd.DataFrame(data = list_travel, index =[0])
-    df = (df.T)    
+    df = (df.T)
     df.to_excel('перемещение.xlsx')
 
     # открытие файла docx
     if platform.system() == 'Darwin':       # macOS
         subprocess.call(('open', doc_name))
     elif platform.system() == 'Windows':    # Windows
-        os.startfile(doc_name)     
+        os.startfile(doc_name)
     else:                                   # linux variants
         subprocess.call(('xdg-open', doc_name))
 
@@ -126,14 +126,14 @@ def description_good(list_description):
 
     # создание exel файла
     df = pd.DataFrame(data = list_description, index =[0])
-    df = (df.T)    
+    df = (df.T)
     df.to_excel('списание.xlsx')
 
     # открытие файла docx
     if platform.system() == 'Darwin':       # macOS
         subprocess.call(('open', doc_name))
     elif platform.system() == 'Windows':    # Windows
-        os.startfile(doc_name)     
+        os.startfile(doc_name)
     else:                                   # linux variants
         subprocess.call(('xdg-open', doc_name))
 

@@ -157,6 +157,11 @@ class Ui_Cart(object):
         self.db.commit()
 
         goods_in_cart = [i for i in self.make_order_class.goods_in_cart if i not in selected_ids]
+        self.make_order_class.goods_in_cart = goods_in_cart
+        self.make_order_class.cart_count -= 1
+        _translate = QtCore.QCoreApplication.translate
+        self.make_order_class.btn_cart.setText(_translate("make_order", f"Корзина {self.make_order_class.cart_count}"))
+
         if len(goods_in_cart) == 0:
             self.table_widget_cart.clear()
             self.lineEdit_sum.clear()

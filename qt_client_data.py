@@ -116,21 +116,18 @@ class Ui_Client_data(object):
                                   WHERE article_number = ?""", [good[0]])
             info_for_list.append(list(self.cursor.fetchone()))
 
-        goods_list_sell = [elem + good for elem, good in zip(info_for_list, goods)]
         current_date = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        goods_list_sell = [elem + good for elem, good in zip(info_for_list, goods)]
 
-        list_sell = {'article_number': [i[-2] for i in goods_list_sell],
-                     'good_name': [i[1] for i in goods_list_sell],
-                     'warehouse_address': [i[0] for i in goods_list_sell],
+        list_sell = {'article_number': ', '.join(str(i[-2]) for i in goods_list_sell),
+                     'good_name': ', '.join(str(i[1]) for i in goods_list_sell),
+                     'warehouse_address': ', '.join(str(i[0]) for i in goods_list_sell),
                      'delivery_address': address_data,
                      'date': current_date,
-                     'measure_unit': [i[2] for i in goods_list_sell],
-                     'description': [i[3] for i in goods_list_sell],
-                     'amount': [i[-1] for i in goods_list_sell],
+                     'measure_unit': ', '.join(str(i[2]) for i in goods_list_sell),
+                     'description': ', '.join(str(i[3]) for i in goods_list_sell),
+                     'amount': ', '.join(str(i[-1]) for i in goods_list_sell),
                      'price_sell': self.price}
-
-        print(list_sell['warehouse_address'])
-
         self.cart_class.clear_cart()
         if self.radioButton_Yes.isChecked():
             paths = files_sell(list_sell)
@@ -138,7 +135,6 @@ class Ui_Client_data(object):
         else:
             DataBase().add_new_order_into_bd_orders_and_good_in_orders(self.current_user, self.client, self.address, goods)
         QtWidgets.QMessageBox.information(self.layoutWidget, 'Информация', 'Заказ принят!')
-
         self.close_window()
 
     def get_companies_list(self):

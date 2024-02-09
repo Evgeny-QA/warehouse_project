@@ -131,9 +131,10 @@ class Ui_Client_data(object):
 
         QtWidgets.QMessageBox.information(self.layoutWidget, 'Информация', 'Заказ принят!')
         self.cart_class.clear_cart()
-        DataBase().add_new_order_into_bd_orders_and_good_in_orders(self.current_user, self.client, self.address, goods)
         if self.radioButton_Yes:
             files_sell(list_sell)
+        DataBase().add_new_order_into_bd_orders_and_good_in_orders(self.current_user, self.client, self.address, goods)
+
         self.close_window()
 
     def get_companies_list(self):

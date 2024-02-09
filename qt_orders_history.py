@@ -147,12 +147,12 @@ class Ui_Orders_History(object):
                     if not order_id:
                         order_id = info_insert
                     if coll == len_str - 2:
-                        if info_insert is not None:
+                        if info_insert is not None and not info_insert == "-":
                             self.input_file_button(row, coll, "Word", info_insert)
                         else:
                             self.tableWidget_table_history.setItem(row, coll, QtWidgets.QTableWidgetItem("-"))
                     elif coll == len_str - 1:
-                        if info_insert is not None:
+                        if info_insert is not None and not info_insert == "-":
                             self.input_file_button(row, coll, "Excel", info_insert)
                         else:
                             self.tableWidget_table_history.setItem(row, coll, QtWidgets.QTableWidgetItem("-"))

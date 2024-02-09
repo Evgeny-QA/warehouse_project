@@ -1,6 +1,7 @@
 import sqlite3
 import traceback
 from functools import partial
+from Db_functions import DataBase
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -55,7 +56,7 @@ class Ui_Admin_panel(object):
         # получаем данные по пользователям из БД чтобы поиск работал корректно во всех регистрах
         # отображаем данные в таблице
         # запускаем сортировку при нажатии на столбец
-        self.get_info_from_db()
+        self.info_for_search = DataBase().get_all_users()
         self.show_data()
         self.tableWidget.horizontalHeader().sectionClicked.connect(self.sort_table)
 
@@ -84,11 +85,6 @@ class Ui_Admin_panel(object):
         else:
             self.tableWidget.sortItems(column, QtCore.Qt.DescendingOrder)
             self.flag = False
-
-    # полeчаем данные по товарам для поиска
-    def get_info_from_db(self):
-        self.cursor.execute(f"SELECT * FROM Users")
-        self.info_for_search = self.cursor.fetchall()
 
     # отображаем данные пользователей
     # отображаем данные введенные в окно поиск по выбранному пользователю
@@ -134,13 +130,13 @@ class Ui_Admin_panel(object):
             return QtWidgets.QMessageBox.information(self.tableWidget,
                             'Ошибка!', f'Пользователь "{login}" уже зарегистрирован.\nВведите другой login.')
         else:
-            self.cursor.execute(f"INSERT INTO Users(login, password) VALUES(?,?)", [login, password])
+            DataBase().add_new_user(login, password)
             self.db.commit()
             QtWidgets.QMessageBox.information(self.tableWidget, 'Информация!',
                                               f'Пользователь {login} упсешно зарегистрирован.')
         self.lineEdit_new_admin_login.clear()
         self.lineEdit_new_admin_password.clear()
-        self.get_info_from_db()
+        self.info_for_search = DataBase().get_all_users()
         return self.fill_table(self.info_for_search)
 
     # удаление выбранного пользователя
@@ -160,9 +156,9 @@ class Ui_Admin_panel(object):
             if btn == QtWidgets.QMessageBox.Ok:
                 for selected_id in selected_ids:
                     print(selected_id)
-                    self.cursor.execute(f"DELETE FROM Users WHERE id = ?", [selected_id])
+                    DataBase().delete_user(selected_id)
             self.db.commit()
-            self.get_info_from_db()
+            self.info_for_search = DataBase().get_all_users()
             self.fill_table(self.info_for_search)
 
         except Exception as e:
@@ -185,5 +181,5 @@ class Ui_Admin_panel(object):
             self.cursor.execute(
                 f"UPDATE Users SET {col_name} = ? WHERE id = ?", [new_value, user_id])
         self.db.commit()
-        self.get_info_from_db()
+        self.info_for_search = DataBase().get_all_users()
         self.fill_table(self.info_for_search)

@@ -122,24 +122,24 @@ def travel_good(list_travel):
 #                     'price': '20'}
 
 
-def description_good(list_description, path):
+def description_good(list_description):
     # создание doxc файла
-    doc = DocxTemplate(f"{path}blankdescription.docx")
+    doc = DocxTemplate("Documents\\blankdescription.docx")
     doc.render(list_description)
-    doc_name = f"Списание {list_description['good_name']} {date.today()}.docx"
+    doc_name = f"Documents\\Списание {list_description['good_name']} {date.today()}.docx"
     doc.save(doc_name)
 
     # создание exel файла
     df = pd.DataFrame(data=list_description, index=[0])
     df = (df.T)
-    excel_name = f"Списание {list_description['good_name']} {date.today()}.xlsx"
+    excel_name = f"Documents\\Списание {list_description['good_name']} {date.today()}.xlsx"
     df.to_excel(excel_name)
 
     # открытие файла docx
     if platform.system() == 'Darwin':  # macOS
         subprocess.call(('open', doc_name))
     elif platform.system() == 'Windows':  # Windows
-        os.startfile(doc_name)
+        os.startfile(os.getcwd() + "\\" + doc_name)
     else:  # linux variants
         subprocess.call(('xdg-open', doc_name))
 

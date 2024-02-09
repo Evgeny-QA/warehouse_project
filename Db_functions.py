@@ -8,8 +8,9 @@ class DataBase:
         self.db_old_orders = "Orders_history.db"
         self.db = sql.connect(self.db_file)
         self.db1 = sql.connect(self.db_old_orders)
+
     '''log_in'''
-    def log_in(self, login):  # 27 log_in
+    def log_in(self, login):
         """Вход в приложение базы пользователем
         :param login: логин
         :return: Возвращает пароль, если пароль не верный - None"""
@@ -26,7 +27,7 @@ class DataBase:
             return False
 
     '''all files'''
-    def get_all_goods_from_warehouses(self, search_text):  # 115 строка qt_warehouse_main 62 qt_add_good 66 qt_edit_goods
+    def get_all_goods_from_warehouses(self, search_text):
         """Получение информации о всех товарах на всех складах
         :return: возвращает все товары на всех складах (склад, категория, название, количество, ед. изм.,
                  цена, дата изготовления, годен до, описание, артикул, путь к фото)"""
@@ -52,7 +53,7 @@ class DataBase:
             return False
 
     '''qt_warehouse_main'''
-    def get_goods_from_warehouse(self, warehouse_name, search_text):  # 140 строка qt_warehouse_main
+    def get_goods_from_warehouse(self, warehouse_name, search_text):
         """Получение информации о товарах на определенном складе
         :param warehouse_name: название склада
         :return: возвращает список с кортежами каждого товара (категория, название, количество, ед. изм.,
@@ -94,7 +95,7 @@ class DataBase:
             return False
 
     '''qt_add_good'''
-    def get_all_categories(self):  # 96 qt_add_good
+    def get_all_categories(self):
         """Получение всех доступных категорий товаров
         :return: Возвращает все категории товаров"""
         try:
@@ -108,7 +109,7 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-    def add_new_good_into_db(self, good_info):  # 178 qt_add_good
+    def add_new_good_into_db(self, good_info):
         """Добавление нового товара на склад
         :param good_info: [название склада (str), категория (str), название товара (str),
                            количество (int), ед. изм. (str), цена (int), дата изготовления (str),
@@ -145,7 +146,7 @@ class DataBase:
             return False
 
     '''qt_edit_goods'''
-    def delete_good(self, article_id):  # 124 qt_edit_goods
+    def delete_good(self, article_id):
         """Удаление товара со склада
         :param article_id - номер товара"""
         try:
@@ -158,7 +159,7 @@ class DataBase:
             return False
 
     '''qt_admin_panel'''
-    def add_new_user(self, login, password):  # 86
+    def add_new_user(self, login, password):
         """Добавление пользователя
         :param login - логин нового пользователя, password - пароль нового пользователя"""
         try:
@@ -170,7 +171,7 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-    def update_user_info(self, login, password, user_id):  # 86
+    def update_user_info(self, login, password, user_id):
         """Обновление информации пользователя
         :param login - логин пользователя, password - пароль пользователя"""
         try:
@@ -183,7 +184,7 @@ class DataBase:
             print(f"Произошла ошибка: {error}")
             return False
 
-    def delete_user(self, user_id):  # 86
+    def delete_user(self, user_id):
         """Удаление пользователя
         :param user_id - номер пользователя"""
         try:
@@ -422,7 +423,7 @@ class DataBase:
                     list_description = {'article_number': str(id), 'good_name': name, 'address_description': address,
                                         'date_description': time_to_end, 'measure_unit': measure_unit,
                                         'description': description, 'amount': str(amount), 'price': str(price)}
-                    description_good(list_description, path="Documents//")
+                    description_good(list_description)
                     cursor.execute('''DELETE FROM Goods
                                       WHERE article_number = ?''', [id])
                 print(f"Delete done: {date.today()}")

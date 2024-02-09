@@ -27,25 +27,17 @@ class DataBase:
             return False
 
     '''all files'''
-    def get_all_goods_from_warehouses(self, search_text):
+    def get_all_goods_from_warehouses(self):
         """Получение информации о всех товарах на всех складах
         :return: возвращает все товары на всех складах (склад, категория, название, количество, ед. изм.,
                  цена, дата изготовления, годен до, описание, артикул, путь к фото)"""
         try:
             with self.db:
                 cursor = self.db.cursor()
-                if search_text:
-                    cursor.execute('''SELECT warehouse_name, category_name, good_name, amount, measure_unit, price, 
-                                             time_start, time_to_end, description, article_number, image 
-                                      FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id 
-                                                   JOIN Categories C ON G.category_id = C.id
-                                      WHERE LOWER(good_name) LIKE LOWER(?)''', [f"%{search_text}%"])
-                else:
-                    cursor.execute('''SELECT warehouse_name, category_name, good_name, amount, measure_unit, price, 
-                                             time_start, time_to_end, description, article_number, image 
-                                      FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id 
-                                                   JOIN Categories C ON G.category_id = C.id''')
-
+                cursor.execute('''SELECT warehouse_name, category_name, good_name, amount, measure_unit, price, 
+                                         time_start, time_to_end, description, article_number, image 
+                                  FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id 
+                                               JOIN Categories C ON G.category_id = C.id''')
                 info = cursor.fetchall()
                 return info
         except sql.Error as error:
@@ -53,7 +45,7 @@ class DataBase:
             return False
 
     '''qt_warehouse_main'''
-    def get_goods_from_warehouse(self, warehouse_name, search_text):
+    def get_goods_from_warehouse(self, warehouse_name):
         """Получение информации о товарах на определенном складе
         :param warehouse_name: название склада
         :return: возвращает список с кортежами каждого товара (категория, название, количество, ед. изм.,
@@ -61,19 +53,11 @@ class DataBase:
         try:
             with self.db:
                 cursor = self.db.cursor()
-                if search_text:
-                    cursor.execute('''SELECT category_name, good_name, amount, measure_unit, price, time_start, 
-                                             time_to_end, description, article_number, image
-                                      FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id 
-                                                   JOIN Categories C ON G.category_id = C.id
-                                      WHERE warehouse_name = ? AND LOWER(good_name) LIKE LOWER(?)''',
-                                   [warehouse_name, f"%{search_text}%"])
-                else:
-                    cursor.execute('''SELECT category_name, good_name, amount, measure_unit, price, time_start, 
-                                             time_to_end, description, article_number, image
-                                      FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id 
-                                                   JOIN Categories C ON G.category_id = C.id
-                                      WHERE warehouse_name = ?''', [warehouse_name])
+                cursor.execute('''SELECT warehouse_name, category_name, good_name, amount, measure_unit, price, time_start, 
+                                         time_to_end, description, article_number, image
+                                  FROM Goods G JOIN Warehouses W ON G.warehouse_id = W.id 
+                                               JOIN Categories C ON G.category_id = C.id
+                                  WHERE warehouse_name = ?''', [warehouse_name])
                 info = cursor.fetchall()
                 return info
         except sql.Error as error:

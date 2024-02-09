@@ -197,6 +197,20 @@ class DataBase:
             return False
 
     '''qt_client_data'''
+    def get_all_companies(self):
+        """Получение информации о товарах заказа
+        :return: Возвращает список информации о компаниях"""
+        try:
+            with self.db:
+                cursor = self.db.cursor()
+                cursor.execute('''SELECT * 
+                                  FROM Companies''')
+                info = cursor.fetchall()
+                return info
+        except sql.Error as error:
+            print(f"Произошла ошибка: {error}")
+            return False
+
     def add_new_order_into_bd_orders_and_good_in_orders(self, user_id, company_name, delivery_address, cart):
         """Формирование заказа в бд
         :param user_id - id логина пользователя, company_name - название компании,

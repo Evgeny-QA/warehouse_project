@@ -112,8 +112,7 @@ class Ui_Client_data(object):
     def get_companies_list(self):
         self.comboBox_client.clear()
         companies = ["Вписать данные самостоятельно"]
-        self.cursor.execute("SELECT * FROM Companies")
-        companies_db = self.cursor.fetchall()
+        companies_db = DataBase().get_all_companies()
         companies += [i[1] for i in companies_db]
         for company in companies:
             self.comboBox_client.addItem(company)

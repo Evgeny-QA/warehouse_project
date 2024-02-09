@@ -153,4 +153,3 @@ class Ui_Client_data(object):
         else:
             self.cart_class.current_window.show()
             event.accept()
-
